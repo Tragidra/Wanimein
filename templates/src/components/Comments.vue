@@ -7,7 +7,7 @@
                  label-position="top"
                  style="width: 100%;"
                  label-width="100px">
-            <el-form-item label="评论">
+            <el-form-item label="Комментарии">
                 <el-input v-model="commentForm.body" placeholder="Пожалуйста, напишие комментарий" type="textarea" :rows="4"/>
             </el-form-item>
             <el-form-item style="float:left;">
