@@ -40,16 +40,16 @@ class Movie_Info(TimestampedModel):
     picture = models.TextField()
     type = models.IntegerField(db_index=True)
 
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    year = models.ForeignKey(Year, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.RESTRICT)
+    year = models.ForeignKey(Year, on_delete=models.RESTRICT)
 
     def __str__(self):
         return self.name
 
 
 class Movie_Genre(TimestampedModel):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie_Info, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.RESTRICT)
+    movie = models.ForeignKey(Movie_Info, on_delete=models.RESTRICT)
 
 
 class User(TimestampedModel):
@@ -85,21 +85,26 @@ class Movie_Details(TimestampedModel):
     last_episode = models.DateTimeField()
     synopsis = models.TextField()
 
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.RESTRICT)
 
     def __str__(self):
         return self.name
 
 
 class Movie_Actors(TimestampedModel):
-    movie = models.ForeignKey(Movie_Details, on_delete=models.CASCADE)
-    actor = models.ForeignKey(Actors, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
+    actor = models.ForeignKey(Actors, on_delete=models.RESTRICT)
 
 
 class Episode(TimestampedModel):
     name = models.CharField(db_index=True)
 
-    Movie_Details = models.ForeignKey(Movie_Details, on_delete=models.CASCADE)
+    movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
 
     def __str__(self):
         return self.name
+
+
+class Collection(TimestampedModel):
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
