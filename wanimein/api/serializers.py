@@ -86,8 +86,8 @@ class Movie_InfoSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255)
     picture = serializers.CharField()
     type = serializers.IntegerField()
-    country = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
-    year = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
+    country = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Country.objects.all())
+    year = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Year.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -117,8 +117,8 @@ class Movie_InfoSerializer(serializers.ModelSerializer):
 
 
 class Movie_GenreSerializer(serializers.ModelSerializer):
-    genre = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
-    movie = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
+    genre = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Genre.objects.all())
+    movie_info = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Info.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -127,7 +127,7 @@ class Movie_GenreSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'genre',
-            'movie',
+            'movie_info',
             'createdAt',
             'updatedAt',
         )
@@ -176,8 +176,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     text = serializers.CharField()
-    author = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
-    respondent = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
+    author = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=User.objects.all())
+    respondent = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=User.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -240,7 +240,7 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
     director = serializers.CharField()
     last_episode = serializers.DateTimeField()
     synopsis = serializers.CharField()
-    country = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
+    country = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Country.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -273,8 +273,8 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
 
 
 class Movie_ActorsSerializer(serializers.ModelSerializer):
-    actor = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
-    movie = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
+    actor = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Actors.objects.all())
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -282,7 +282,7 @@ class Movie_ActorsSerializer(serializers.ModelSerializer):
         model = Movie_Actors
         fields = (
             'id',
-            'movie',
+            'movie_details',
             'actor',
             'createdAt',
             'updatedAt',
@@ -302,7 +302,7 @@ class Movie_ActorsSerializer(serializers.ModelSerializer):
 
 class EpisodeSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
-    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -328,8 +328,8 @@ class EpisodeSerializer(serializers.ModelSerializer):
 
 
 class CollectionSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
-    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False)
+    user = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=User.objects.all())
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 

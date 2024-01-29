@@ -5,7 +5,7 @@ import httpRequest from '../request/index'
 // 获取mov信息
 export default function apiGetMovList(param) {
     return httpRequest({
-		url: '/vod_list',
+		url: '/movie_info',
 		method: 'get',
 		params: param,
 	})
