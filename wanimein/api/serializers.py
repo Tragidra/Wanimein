@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from wanimein.api.models import (Genre, Country, Movie_Genre, Movie_Details, Movie_Info, Movie_Actors,
-                                 Movie_Actors, Movie_Info, Comment, Actors, Year, User, Episode, Collection)
+                                 Movie_Actors, Movie_Info, Comment, Actors, Year, User, Episode, Collection, Types)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -345,6 +345,32 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Collection.objects.create(
+            **validated_data
+        )
+
+    def get_created_at(self, instance):
+        return instance.created_at.isoformat()
+
+    def get_updated_at(self, instance):
+        return instance.updated_at.isoformat()
+
+
+class TypesSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+    createdAt = serializers.SerializerMethodField(method_name='get_created_at')
+    updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
+
+    class Meta:
+        model = Types
+        fields = (
+            'id',
+            'name',
+            'createdAt',
+            'updatedAt',
+        )
+
+    def create(self, validated_data):
+        return Types.objects.create(
             **validated_data
         )
 

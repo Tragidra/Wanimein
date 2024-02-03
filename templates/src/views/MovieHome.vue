@@ -3,10 +3,10 @@
     <SakuraBigImgVue/>
   </div>
   
-  <MovLimitCardVue :movtype="4"/>
   <MovLimitCardVue :movtype="1"/>
   <MovLimitCardVue :movtype="2"/>
   <MovLimitCardVue :movtype="3"/>
+  <MovLimitCardVue :movtype="4"/>
   <el-backtop :right="50" :bottom="80" />
 </template>
 

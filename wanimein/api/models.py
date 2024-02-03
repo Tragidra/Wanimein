@@ -57,6 +57,16 @@ class User(TimestampedModel):
     password = models.CharField(max_length=255)
     ip = models.CharField(db_index=True, max_length=255)
 
+    USERNAME_FIELD = 'login'
+    REQUIRED_FIELDS = ('login','password')
+
+    @property
+    def is_anonymous(self):
+        """
+        Always return False. This is a way of comparing User objects to
+        anonymous users.
+        """
+        return False
     def __str__(self):
         return self.login
 
@@ -108,3 +118,7 @@ class Episode(TimestampedModel):
 class Collection(TimestampedModel):
     user = models.ForeignKey(User, on_delete=models.RESTRICT)
     movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
+
+
+class Types(TimestampedModel):
+    name = models.CharField(db_index=True)

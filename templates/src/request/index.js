@@ -13,8 +13,7 @@ const service = axios.create({
 		// 设置后端需要的传参类型
 		'Content-Type': 'application/json',
 		'Authorization': token,
-		'X-Requested-With': 'XMLHttpRequest',
-		'Access-Control-Allow-Origin': 'http://127.0.0.1:8000'
+		'X-Requested-With': 'XMLHttpRequest'
 	},
 })
 

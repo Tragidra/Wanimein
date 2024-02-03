@@ -20,24 +20,24 @@
             v-show="contenshow">
       <el-col 
         v-for="o in movieList"
-        :key="o.vod_id"
+        :key="o.id"
         :xs="8" :sm="4" :md="4" 
         style="padding: 9px;">   
-        <router-link :to="'/movdetail/'+ o.vod_id" style="text-decoration: none;" target="_blank">
+        <router-link :to="'/movdetail/'+ o.id" style="text-decoration: none;" target="_blank">
         <el-card
         class="box-card" 
         @click="selectMovie"
         shadow="hover"
         :body-style="{ padding: '8px 5px' }">
         <div class="card-div">
-          <img :src="o.vod_pic" class="card-image"/>
-          <span class="card-remark">{{ o.vod_remarks }}</span>
+          <img :src="o.picture" class="card-image"/>
+          <span class="card-remark">{{ o.name }}</span>
         </div>
         <div style="padding: 0px;">
           
           <span style="line-height: 26px; font-size: 15px; color:#777; display: flex; margin-top: 4px; text-overflow: ellipsis; overflow: hidden; width: 80%; white-space: nowrap;">
-            <el-tooltip class="box-item" effect="dark" :content="o.vod_name" placement="bottom-end" :show-after="1000">
-            {{ o.vod_name }}
+            <el-tooltip class="box-item" effect="dark" :content="o.name" placement="bottom-end" :show-after="1000">
+            {{ o.name }}
             </el-tooltip>
           </span>
           <!-- <div class="bottom">
@@ -49,8 +49,8 @@
       </el-col>
   </el-row>
   <el-backtop :right="50" :bottom="80" />
-  <p v-show="infiniteMsgShow" class="tips" style="font-size:smaller; color:#777;">Loading...</p>
-  <p v-show="!infiniteMsgShow" class="tips" style="font-size:smaller; color:#777;">到底啦</p>
+  <p v-show="infiniteMsgShow" class="tips" style="font-size:smaller; color:#777;">Загрузка...</p>
+  <p v-show="!infiniteMsgShow" class="tips" style="font-size:smaller; color:#777;">Конец</p>
 </template>
 
 <script>
@@ -84,20 +84,20 @@ export default {
         page: 1,
         contenshow: true,
         infiniteMsgShow: true,
-        vod_class: '',
-        vod_area: '',
-        vod_year: '',
+        genre: '',
+        country: '',
+        year: '',
         movieList: [
             ],
         searchTypes: [
-                {name: "Жанр", key: "vod_class", data: []},
-                {name: "Страна", key: "vod_area", data: ["Китай", "Материк", "США", "Япония", "Южная Корея", "Англия", "Франция", "Гонконг", "Таиланд", "Другое"]},
-                {name: "Год", key: "vod_year", data: ["2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010", "more"]}
+                {name: "Жанр", key: "genre", data: []},
+                {name: "Страна", key: "country", data: ["Китай", "Материк", "США", "Япония", "Южная Корея", "Англия", "Франция", "Гонконг", "Таиланд", "Другое"]},
+                {name: "Год", key: "year", data: ["2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010", "more"]}
             ],
         activeName: {
-          vod_class: '',
-          vod_area: '',
-          vod_year: ''
+          genre: '',
+          country: '',
+          year: ''
         }
       }
     },
@@ -114,12 +114,12 @@ export default {
           var name = cho_fliter.split('-')[0]
           var value = cho_fliter.split('-')[1]
           this.activeName[name] = value
-          if (name == "vod_class") {
-            this.vod_class = value
-          } else if (name == "vod_area") {
-            this.vod_area = value
-          } else if (name == "vod_year") {
-            this.vod_year = value
+          if (name == "genre") {
+            this.genre = value
+          } else if (name == "country") {
+            this.country = value
+          } else if (name == "year") {
+            this.year = value
           }
           this.page = 1
           this.movieList = []
@@ -139,11 +139,11 @@ export default {
         getMovList() {
           const param =  { 
               page: this.page,
-              movtype: this.movtype || 0,
+              movtype: this.type || 0,
               keyword: this.keyword || '',
-              vod_area: this.vod_area,
-              vod_class: this.vod_class,
-              vod_year: this.vod_year }
+              country: this.country,
+              genre: this.genre,
+              year: this.year }
 
           // console.log(param)
           apiGetMovList(param).then(
