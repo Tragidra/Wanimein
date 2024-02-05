@@ -17,25 +17,27 @@ class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
         queryset = self.queryset
 
         m_type = self.request.query_params.get('movtype', None)
+        if m_type == '0':
+            m_type = None
         year = self.request.query_params.get('year', None)
         country = self.request.query_params.get('country', None)
-        name = self.request.query_params.get('name', None)
+        name = self.request.query_params.get('keyword', None)
         if m_type is not None:
+            print(111)
             queryset = queryset.filter(type=m_type)
         if year is not None:
             queryset = queryset.filter(year=year)
         if country is not None:
             queryset = queryset.filter(country=country)
         if name is not None:
-            queryset = queryset.filter(name=name)
+            print(name)
+            queryset = queryset.filter(name__icontains=name)
 
         return queryset
 
     def list(self, request):
         serializer_context = {'request': request}
-        print(self.get_queryset())
         page = self.paginate_queryset(self.get_queryset())
-        print(page)
         serializer = self.serializer_class(
             page,
             context=serializer_context,
@@ -80,7 +82,7 @@ class YearView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Update
     queryset = Year.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = self.queryset.order_by('id')
 
         return queryset
 
@@ -106,7 +108,7 @@ class CountryView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upd
     queryset = Country.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = self.queryset.order_by('name')
 
         return queryset
 

@@ -10,3 +10,19 @@ export default function apiGetMovList(param) {
 		params: param,
 	})
 }
+
+export function apiGetYears(param) {
+	return httpRequest({
+		url: '/year',
+		method: 'get',
+		params: param,
+	})
+}
+
+export function apiGetCountry(param) {
+	return httpRequest({
+		url: '/country',
+		method: 'get',
+		params: param,
+	})
+}

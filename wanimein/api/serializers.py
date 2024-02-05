@@ -84,6 +84,7 @@ class YearSerializer(serializers.ModelSerializer):
 
 class Movie_InfoSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255)
+    remark = serializers.CharField(max_length=255)
     picture = serializers.CharField()
     type = serializers.IntegerField()
     country = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Country.objects.all())
@@ -96,6 +97,7 @@ class Movie_InfoSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
+            'remark',
             'picture',
             'type',
             'country',

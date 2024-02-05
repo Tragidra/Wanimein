@@ -2,12 +2,12 @@
   <div class="search-type" >
         <el-row v-for="o in searchTypes" :key="o.key" style="margin: 10px;" :gutter="20">
           <span style="margin: 5px 10px; font-size: 16px; font-weight: bold; line-height: 20px;">{{ o.name }}:</span>
-            <a v-for="d in o.data" :key="o.key + '-' + d" :name="o.key + '-' + d"
+            <a v-for="d in o.data" :key="o.key + '-' + d[0]" :name="o.key + '-' + d[0]"
              @click="chooseFliter" 
              style="margin: 0 5px; padding: 5px 5px; line-height: 20px;" 
              class="search-type"
-             :class="[{active: activeName[o.key] == d}]"
-            >{{ d }}</a>
+             :class="[{active: activeName[o.key] === d[1]}]"
+            >{{ d[1] }}</a>
         </el-row>
     </div>
   
@@ -19,7 +19,7 @@
             class="mov-card-row"
             v-show="contenshow">
       <el-col 
-        v-for="o in movieList"
+        v-for="o in movieList[3]"
         :key="o.id"
         :xs="8" :sm="4" :md="4" 
         style="padding: 9px;">   
@@ -34,15 +34,14 @@
           <span class="card-remark">{{ o.name }}</span>
         </div>
         <div style="padding: 0px;">
-          
           <span style="line-height: 26px; font-size: 15px; color:#777; display: flex; margin-top: 4px; text-overflow: ellipsis; overflow: hidden; width: 80%; white-space: nowrap;">
-            <el-tooltip class="box-item" effect="dark" :content="o.name" placement="bottom-end" :show-after="1000">
-            {{ o.name }}
+            <el-tooltip class="box-item" effect="dark" :content="o.remark" placement="bottom-end" :show-after="1000">
+            {{ o.remark }}
             </el-tooltip>
           </span>
-          <!-- <div class="bottom">
-            <p style="font-size:smaller; color:#777; margin: 4px 0">{{ o.vod_remarks }}</p>
-          </div> -->
+          <div class="bottom">
+            <p style="font-size:smaller; color:#777; margin: 4px 0">{{ o.remark }}</p>
+          </div>
         </div>
       </el-card>
       </router-link>
@@ -55,7 +54,7 @@
 
 <script>
 import { ref } from 'vue'
-import apiGetMovList from '../apis/getMovInfo'
+import apiGetMovList, {apiGetCountry, apiGetYears} from '../apis/getMovInfo'
 import SakuraBigImg from './SakuraBigImg.vue'
 // import SakuraTypeButton from './SakuraTypeButton.vue'
 import { useStore } from 'vuex'
@@ -91,8 +90,8 @@ export default {
             ],
         searchTypes: [
                 {name: "Жанр", key: "genre", data: []},
-                {name: "Страна", key: "country", data: ["Китай", "Материк", "США", "Япония", "Южная Корея", "Англия", "Франция", "Гонконг", "Таиланд", "Другое"]},
-                {name: "Год", key: "year", data: ["2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010", "more"]}
+                {name: "Страна", key: "country", data: []},
+                {name: "Год", key: "year", data: []}
             ],
         activeName: {
           genre: '',
@@ -110,7 +109,7 @@ export default {
         chooseFliter(v) {
           // 点击筛选标签后 获取想要筛选的 视频类型
           var cho_fliter = v.currentTarget.attributes.name.value
-          // console.log(cho_fliter)
+          console.log(cho_fliter);
           var name = cho_fliter.split('-')[0]
           var value = cho_fliter.split('-')[1]
           this.activeName[name] = value
@@ -139,35 +138,37 @@ export default {
         getMovList() {
           const param =  { 
               page: this.page,
-              movtype: this.type || 0,
+              movtype: this.movtype || 0,
               keyword: this.keyword || '',
-              country: this.country,
-              genre: this.genre,
-              year: this.year }
+              country: this.country || null,
+              genre: this.genre || null,
+              year: this.year || null }
 
           // console.log(param)
           apiGetMovList(param).then(
             (res) => { 
               // console.log(res)
-              if (res.data.length > 0) {
+              if (res.count > 0) {
                 this.contentShow = true
                 this.infiniteMsgShow = true
-                  for (var i in res.data) {
-                    this.movieList.push(res.data[i])
+                  for (var i in res) {
+                    this.movieList.push(res[i])
                  }
-                  this.disabled = false // 还有多余数据时 无限滚动打开
+                  this.disabled = false; // openInfiniteScrollWhenThereIsExcessData
+                  this.infiniteMsgShow = false;
               } else {
-                this.contentShow = false
-                this.infiniteMsgShow = false
-                this.disabled = true
+                this.contentShow = false;
+                this.infiniteMsgShow = false;
+                this.disabled = true;
                 
               }
              }
           ).catch(
             () => {
-                this.contentShow = false
-                this.infiniteMsgShow = false
-                this.disabled = true
+              console.log(1111)
+                this.contentShow = false;
+                this.infiniteMsgShow = false;
+                this.disabled = true;
             }
           )
       },
@@ -179,12 +180,34 @@ export default {
         this.searchTypes[0].data = type_names
         // console.log(type_names)
         // console.log(this.searchTypes)
-      }
+      },
+
+      getYears() {
+        apiGetYears().then(
+            (res) => {
+               for (const i in res.results) {
+                    this.searchTypes[2].data.push([res.results[i].id, res.results[i].name])
+                 }
+            }
+        )
+      },
+
+      getCountry() {
+        apiGetCountry().then(
+            (res) => {
+               for (const i in res.results) {
+                    this.searchTypes[1].data.push([res.results[i].id, res.results[i].name])
+                 }
+            }
+        )
+      },
    },
 
    created() {
-    this.getMovTypeNames()
-    this.getMovList()
+    this.getMovTypeNames();
+    this.getMovList();
+    this.getYears();
+    this.getCountry();
    }
 
 }

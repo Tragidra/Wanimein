@@ -37,6 +37,7 @@ class Year(TimestampedModel):
 
 class Movie_Info(TimestampedModel):
     name = models.CharField(db_index=True)
+    remark = models.CharField(default=None, null=True,  db_index=True)
     picture = models.TextField()
     type = models.IntegerField(db_index=True)
 
