@@ -50,7 +50,7 @@ class Movie_Info(TimestampedModel):
 
 class Movie_Genre(TimestampedModel):
     genre = models.ForeignKey(Genre, on_delete=models.RESTRICT)
-    movie = models.ForeignKey(Movie_Info, on_delete=models.RESTRICT)
+    movie_info = models.ForeignKey(Movie_Info, on_delete=models.RESTRICT)
 
 
 class User(TimestampedModel):

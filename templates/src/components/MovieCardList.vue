@@ -54,7 +54,7 @@
 
 <script>
 import { ref } from 'vue'
-import apiGetMovList, {apiGetCountry, apiGetYears} from '../apis/getMovInfo'
+import apiGetMovList, {apiGetCountry, apiGetGenres, apiGetYears} from '../apis/getMovInfo'
 import SakuraBigImg from './SakuraBigImg.vue'
 // import SakuraTypeButton from './SakuraTypeButton.vue'
 import { useStore } from 'vuex'
@@ -141,7 +141,7 @@ export default {
               movtype: this.movtype || 0,
               keyword: this.keyword || '',
               country: this.country || null,
-              genre: this.genre || null,
+              genre: parseInt(this.genre) || null,
               year: this.year || null }
 
           // console.log(param)
@@ -201,6 +201,16 @@ export default {
             }
         )
       },
+
+      getGenres() {
+          apiGetGenres().then(
+              (res) => {
+                for (const i in res.results) {
+                  this.searchTypes[0].data.push([res.results[i].id, res.results[i].name])
+                }
+              }
+          )
+      },
    },
 
    created() {
@@ -208,6 +218,7 @@ export default {
     this.getMovList();
     this.getYears();
     this.getCountry();
+    this.getGenres();
    }
 
 }

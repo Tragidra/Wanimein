@@ -12,6 +12,7 @@ class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
     lookup_field = 'name'
     serializer_class = Movie_InfoSerializer
     queryset = Movie_Info.objects.all()
+    movie_genres = Movie_Genre.objects.all()
 
     def get_queryset(self):
         queryset = self.queryset
@@ -22,16 +23,17 @@ class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
         year = self.request.query_params.get('year', None)
         country = self.request.query_params.get('country', None)
         name = self.request.query_params.get('keyword', None)
+        genre = self.request.query_params.get('genre', None)
         if m_type is not None:
-            print(111)
             queryset = queryset.filter(type=m_type)
         if year is not None:
             queryset = queryset.filter(year=year)
         if country is not None:
             queryset = queryset.filter(country=country)
         if name is not None:
-            print(name)
             queryset = queryset.filter(name__icontains=name)
+        if genre is not None:
+            queryset = queryset.filter(movie_genre__genre=genre)
 
         return queryset
 
@@ -51,12 +53,12 @@ class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
 
 class GenreView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                 viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'name'
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = self.queryset.order_by('id')
 
         return queryset
 
@@ -155,7 +157,7 @@ class Movie_DetailsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixi
 
 class Movie_GenreView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                       viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'id'
     serializer_class = Movie_GenreSerializer
     queryset = Movie_Genre.objects.all()
 

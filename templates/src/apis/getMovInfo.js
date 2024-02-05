@@ -26,3 +26,11 @@ export function apiGetCountry(param) {
 		params: param,
 	})
 }
+
+export function apiGetGenres(param) {
+	return httpRequest({
+		url: '/genre',
+		method: 'get',
+		params: param,
+	})
+}

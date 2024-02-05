@@ -39,7 +39,7 @@ urlpatterns = [
         'get': 'list',
         'put': 'new'
     })),
-    re_path('movie_genre', views.Movie_GenreView.as_view({
+    re_path('movie_genr', views.Movie_GenreView.as_view({
         'get': 'list',
         'put': 'new'
     })),
