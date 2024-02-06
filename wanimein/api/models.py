@@ -86,6 +86,9 @@ class Actors(TimestampedModel):
     name = models.CharField(db_index=True)
     people = models.BooleanField(db_index=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Movie_Details(TimestampedModel):
     name = models.CharField(db_index=True)
@@ -96,7 +99,8 @@ class Movie_Details(TimestampedModel):
     last_episode = models.DateTimeField()
     synopsis = models.TextField()
 
-    country = models.ForeignKey(Country, on_delete=models.RESTRICT)
+    year = models.ForeignKey(Year, on_delete=models.RESTRICT, related_name='year', default=1)
+    country = models.ForeignKey(Country, on_delete=models.RESTRICT, related_name='country', default=1)
 
     def __str__(self):
         return self.name

@@ -3,32 +3,32 @@
         <el-row class="vod-detail">
             <el-col :xs="24" :sm="6" class="vod-detail">
                 <div class="vod-detail">
-                    <img :src="mov_detail.vod_pic" alt=""/>
+                    <img :src="movie_detail.picture" alt=""/>
                 </div>
                 
             </el-col>
             <el-col  :sm="18" style="padding: 0 10px">
                 <el-row style="margin: 0 0 15px 0">
-                    <p style="margin: 0; font-size: 18px;">{{ mov_detail.vod_name }}</p>
+                    <p style="margin: 0; font-size: 18px;">{{ movie_detail.name }}</p>
                 </el-row>
 
-                <el-row v-if="mov_detail.vod_sub">
+                <el-row v-if="movie_detail.vod_sub">
                     <span class="des-name">
                         Другое название:&nbsp; &nbsp;
-                        <p class="des-content">{{ mov_detail.vod_sub }}</p>
+                        <p class="des-content">{{ movie_detail.other_name }}</p>
                     </span>
                     
                 </el-row>
 
                 <el-row>
                     <span class="des-name">Страна:&nbsp;&nbsp;</span>
-                    <p class="des-content"> {{ mov_detail.vod_area }}</p>
+                    <p class="des-content"> {{ movie_detail.country }}</p>
                 </el-row>
 
                 <el-row>
                     <span class="des-name">
                         Язык:&nbsp;&nbsp;
-                        <p class="des-content"> {{ mov_detail.vod_lang }}</p>
+                        <p class="des-content"> {{ movie_detail.language }}</p>
                     </span>
                     
                 </el-row>
@@ -36,7 +36,7 @@
                 <el-row>
                     <span class="des-name">
                         Жанр:&nbsp;&nbsp;
-                        <p class="des-content"> {{ mov_detail.type_name }}</p>
+                        <p v-for="mog in movie_genres" class="des-content">{{ mog.genre + ' ' }}</p>
                     </span>
                     
                 </el-row>
@@ -44,7 +44,7 @@
                 <el-row>
                     <span class="des-name">
                         Выпущено:&nbsp;&nbsp;
-                        <p class="des-content"> {{ mov_detail.vod_year }}</p>
+                        <p class="des-content"> {{ movie_detail.year }}</p>
                     </span>
                     
                 </el-row>
@@ -52,7 +52,7 @@
                 <el-row>
                     <span class="des-name">
                         Эпизоды:&nbsp; &nbsp;
-                        <p class="des-content">{{ mov_detail.vod_remark }}</p>
+                        <p class="des-content">{{ movie_detail.episodes }}</p>
                     </span>
                     
                 </el-row>
@@ -60,7 +60,7 @@
                 <el-row>
                     <span class="des-name">
                         Режиссёр:&nbsp;&nbsp;
-                        <p class="des-content"> {{ mov_detail.vod_director }}</p>
+                        <p class="des-content"> {{ movie_detail.director }}</p>
                     </span>
                     
                 </el-row>
@@ -68,7 +68,7 @@
                 <el-row>
                     <span class="des-name">
                         Последняя серия вышла:&nbsp;&nbsp;
-                        <p class="des-content"> {{ mov_detail.vod_time }}</p>
+                        <p class="des-content"> {{ movie_detail.last_episode }}</p>
                     </span>
                     
                 </el-row>
@@ -87,7 +87,7 @@
                 <el-row>
                     <span class="des-name">
                         Главные персонажи:&nbsp;&nbsp;
-                        <p class="des-content"> {{ mov_detail.vod_actor }}</p>
+                        <p v-for="mog in movie_actors" class="des-content">{{ mog.actor + ' ' }}</p>
                     </span>
                     
                 </el-row>
@@ -95,8 +95,8 @@
                 <el-row class="detail3">
                     <span class="des-name">
                         Подробнее:&nbsp;&nbsp;
-                        <p class="des-content" style="font-size:15px" v-if="checkHtml(mov_detail.vod_content)" v-html="mov_detail.vod_content"/>
-                        <p class="des-content" style="font-size:15px" v-else>{{ mov_detail.vod_content }}</p>
+                        <p class="des-content" style="font-size:15px" v-if="checkHtml(movie_detail.synopsis)" v-html="movie_detail.synopsis"/>
+                        <p class="des-content" style="font-size:15px" v-else>{{ movie_detail.synopsis }}</p>
                     </span>  
                     
                 </el-row>
@@ -106,7 +106,7 @@
 
         <el-row class="vod-play-url">
             <el-col class="vod-play-url"
-                v-for="v, k in mov_detail.vod_play_url" 
+                v-for="v, k in movie_detail.vod_play_url"
                 :key="k"
                 :href="v"
                 :xs="8" :sm="3"
@@ -130,7 +130,7 @@
 
 <script>
 // 视频详情
-import apiGetMovDetail from '../apis/getMovDetail'
+import apiGetMovDetail, {apiGetMovActors, apiGetMovGenres} from '../apis/getMovDetail'
 import myVideoPlay from './VideoPlay.vue'
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
@@ -156,7 +156,9 @@ export default {
     },
   data() {
     return {
-        mov_detail: {},
+        movie_detail: {},
+        movie_genres: {},
+        movie_actors: {},
         video_play: false,
         video_play_url: '',  // 此时正在播放的 视频url
         activeName: '',
@@ -169,14 +171,19 @@ export default {
         var param = {
             vod_id: this.vod_id
         }
-        console.log(param)
         apiGetMovDetail(param).then(
             (res) => {
-                if (res.code == 200) {
-                    this.mov_detail = res.data
-                } else {
-                    console.log('failed', res)
-                }
+              this.movie_detail = res.results[0]
+              apiGetMovGenres(param).then(
+                  (res) => {
+                    this.movie_genres = res.results
+                  }
+              );
+              apiGetMovActors(param).then(
+                  (res) => {
+                    this.movie_actors = res.results
+                  }
+              )
             }
         )
     },
@@ -203,7 +210,7 @@ export default {
             )
         } else {
             ElMessage({
-                        message: '请先登录',
+                        message: 'Пожалуйста, авторизуйтесь',
                         type: 'warning',
                             })
         }
@@ -230,7 +237,7 @@ export default {
             )
         } else {
             ElMessage({
-                        message: '请先登录',
+                        message: 'Пожалуйста, авторизуйтесь',
                         type: 'warning',
                             })
         }

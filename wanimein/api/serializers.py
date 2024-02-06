@@ -119,7 +119,7 @@ class Movie_InfoSerializer(serializers.ModelSerializer):
 
 
 class Movie_GenreSerializer(serializers.ModelSerializer):
-    genre = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Genre.objects.all())
+    genre = serializers.StringRelatedField(many=False)
     movie_info = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Info.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
@@ -240,9 +240,10 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
     language = serializers.CharField()
     episodes = serializers.IntegerField()
     director = serializers.CharField()
-    last_episode = serializers.DateTimeField()
+    last_episode = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     synopsis = serializers.CharField()
-    country = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Country.objects.all())
+    country = serializers.StringRelatedField(many=False)
+    year = serializers.StringRelatedField(many=False)
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -258,6 +259,7 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
             'last_episode',
             'synopsis',
             'country',
+            'year',
             'createdAt',
             'updatedAt',
         )
@@ -275,7 +277,7 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
 
 
 class Movie_ActorsSerializer(serializers.ModelSerializer):
-    actor = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Actors.objects.all())
+    actor = serializers.StringRelatedField(many=False)
     movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')

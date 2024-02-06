@@ -20,7 +20,7 @@ urlpatterns = [
         'put': 'new'
     })),
     re_path('movie_details', views.Movie_DetailsView.as_view({
-        'get': 'list',
+        'get': 'get',
         'put': 'new'
     })),
     re_path('user', views.Movie_DetailsView.as_view({

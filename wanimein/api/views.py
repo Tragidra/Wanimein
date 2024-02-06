@@ -1,4 +1,7 @@
+from itertools import chain
+
 from rest_framework import mixins, viewsets
+from rest_framework.response import Response
 
 from wanimein.api.models import Movie_Info, Genre, Country, Comment, Movie_Genre, Movie_Details, Movie_Actors, \
     Collection, Actors, Year, Episode, Types
@@ -12,7 +15,6 @@ class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
     lookup_field = 'name'
     serializer_class = Movie_InfoSerializer
     queryset = Movie_Info.objects.all()
-    movie_genres = Movie_Genre.objects.all()
 
     def get_queryset(self):
         queryset = self.queryset
@@ -79,7 +81,7 @@ class GenreView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
 
 class YearView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'name'
     serializer_class = YearSerializer
     queryset = Year.objects.all()
 
@@ -105,7 +107,7 @@ class YearView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Update
 
 class CountryView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                   viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'name'
     serializer_class = CountrySerializer
     queryset = Country.objects.all()
 
@@ -129,27 +131,21 @@ class CountryView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upd
         return self.create(request, *args, **kwargs)
 
 
-class Movie_DetailsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+class Movie_DetailsView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                         viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'name'
     serializer_class = Movie_DetailsSerializer
     queryset = Movie_Details.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
+
+        mov_id = self.request.query_params.get('vod_id', None)
+        queryset = self.queryset.filter(id=mov_id)
 
         return queryset
 
-    def list(self, request):
-        serializer_context = {'request': request}
-        page = self.paginate_queryset(self.get_queryset())
-
-        serializer = self.serializer_class(
-            page,
-            context=serializer_context,
-            many=True
-        )
-        return self.get_paginated_response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     def new(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
@@ -162,7 +158,8 @@ class Movie_GenreView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins
     queryset = Movie_Genre.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
+        mov_id = self.request.query_params.get('vod_id', None)
+        queryset = self.queryset.filter(movie_info=mov_id)
 
         return queryset
 
@@ -240,7 +237,8 @@ class Movie_ActorsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixin
     queryset = Movie_Actors.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
+        mov_id = self.request.query_params.get('vod_id', None)
+        queryset = self.queryset.filter(movie_id=mov_id)
 
         return queryset
 

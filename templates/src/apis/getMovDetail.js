@@ -10,3 +10,19 @@ export default function apiGetMovDetail(param) {
 		params: param,
 	})
 }
+
+export function apiGetMovGenres(param){
+	return httpRequest({
+		url: '/movie_genr',
+		method: 'get',
+		params: param,
+	})
+}
+
+export function apiGetMovActors(param){
+	return httpRequest({
+		url: '/movie_actors',
+		method: 'get',
+		params: param,
+	})
+}
