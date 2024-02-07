@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import re_path, path
 
 from wanimein.api import views
 
@@ -55,4 +55,5 @@ urlpatterns = [
         'get': 'list',
         'put': 'new'
     })),
+    path('auth', views.UserView.as_view(), name='user'),
 ]

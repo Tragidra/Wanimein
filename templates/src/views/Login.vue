@@ -3,26 +3,26 @@
     <div class="login-container">
       <div class="head">
         <div class="name">
-          <div class="title">Avalon</div>
-          <div class="tips">动漫、视频交流分享网站</div>
+          <div class="title">Animein</div>
+          <div class="tips">Все онгоинги в одном месте</div>
         </div>
       </div>
       <el-form label-position="top" :rules="rules" :model="ruleForm" ref="loginForm" class="login-form">
-        <el-form-item label="账号" prop="username">
+        <el-form-item label="Никнейм" prop="username">
           <el-input type="text" v-model.trim="ruleForm.username" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="Пароль" prop="password">
           <el-input type="password" v-model.trim="ruleForm.password" autocomplete="off"></el-input>
         </el-form-item>
 
         <el-form-item v-if="haveAccount">
-          <el-button type="primary" link style="margin-bottom:10px" @click="registerAccount">还没有账户?</el-button>
-          <el-button style="width: 100%" type="primary" @click="submitForm">立即登录</el-button>
-          <el-checkbox v-model="checked" @change="!checked">下次自动登录</el-checkbox>
+          <el-button type="primary" link style="margin-bottom:10px" @click="registerAccount">Ещё нет аккаунта?</el-button>
+          <el-button style="width: 100%" type="primary" @click="submitForm">Войти</el-button>
+          <el-checkbox v-model="checked" @change="!checked">Запомнить меня</el-checkbox>
         </el-form-item>
 
         <el-form-item v-else>
-          <el-button style="width: 100%" type="primary" @click="submitRegisterForm">注册</el-button>
+          <el-button style="width: 100%" type="primary" @click="submitRegisterForm">Регистрация</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -52,10 +52,10 @@ export default {
       checked: true,
       rules: {
         username: [
-          { required: 'true', message: '账户不能为空', trigger: 'blur' }
+          { required: 'true', message: 'Никнейм не может быть пустым', trigger: 'blur' }
         ],
         password: [
-          { required: 'true', message: '密码不能为空', trigger: 'blur' }
+          { required: 'true', message: 'Пароль не может быть пустым', trigger: 'blur' }
         ]
       }
     })
@@ -65,10 +65,11 @@ export default {
       loginForm.value.validate((valid) => {
         if (valid) {
           login({
-            name: state.ruleForm.username || '',
-            password: state.ruleForm.password
+            login: state.ruleForm.username || '',
+            password: state.ruleForm.password,
+            ip: window.location.host,
           }).then(res => {
-            if (res.data.code == 200) {
+            if (res.results !== null) {
                 localSet('token', res.data.token)
                 window.location.href = '/'
             } else {
@@ -91,11 +92,12 @@ export default {
         if (valid) {
           register({
             name: state.ruleForm.username,
-            password: state.ruleForm.password
+            password: state.ruleForm.password,
+            ip:  window.location.host
           }).then(res => {
-            if (res.data.code == 200) {
+            if (res.results !== null) {
                 ElMessage({
-                message: res.data.message,
+                message: 'Регистрация успешно завершена',
                 type: 'success',
                 })
                 haveAccount.value = true
@@ -105,7 +107,7 @@ export default {
                 
             } else {
                 ElMessage({
-                message: res.data.message,
+                message: 'Что-то пошло не так, попробуйте снова',
                 type: 'warning',
                 })
             }

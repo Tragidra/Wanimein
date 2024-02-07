@@ -1,13 +1,16 @@
 from itertools import chain
 
-from rest_framework import mixins, viewsets
+from django.contrib.auth.hashers import check_password, make_password
+from rest_framework import mixins, viewsets, generics
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from wanimein.api.models import Movie_Info, Genre, Country, Comment, Movie_Genre, Movie_Details, Movie_Actors, \
-    Collection, Actors, Year, Episode, Types
+    Collection, Actors, Year, Episode, Types, User
 from wanimein.api.serializers import Movie_InfoSerializer, Movie_DetailsSerializer, Movie_ActorsSerializer, \
     Movie_GenreSerializer, GenreSerializer, CommentSerializer, CountrySerializer, CollectionSerializer, \
-    EpisodeSerializer, ActorsSerializer, UserSerializer, YearSerializer, TypesSerializer
+    EpisodeSerializer, ActorsSerializer, YearSerializer, TypesSerializer, \
+    UserSerializer
 
 
 class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
@@ -131,14 +134,14 @@ class CountryView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upd
         return self.create(request, *args, **kwargs)
 
 
-class Movie_DetailsView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+class Movie_DetailsView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
                         viewsets.GenericViewSet, mixins.DestroyModelMixin):
     lookup_field = 'name'
     serializer_class = Movie_DetailsSerializer
     queryset = Movie_Details.objects.all()
 
     def get_queryset(self):
-
         mov_id = self.request.query_params.get('vod_id', None)
         queryset = self.queryset.filter(id=mov_id)
 
@@ -332,4 +335,41 @@ class TypesView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
         return self.get_paginated_response(serializer.data)
 
     def new(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class UserView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                generics.GenericAPIView, mixins.DestroyModelMixin):
+    lookup_field = 'id'
+    multiple_lookup_fields = ['login', 'password']
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def get_queryset(self):
+        # self.request = self.request.copy()
+        queryset = self.queryset
+        return queryset
+
+    '''Разрешить мутацию при запросах с Постмана'''
+    def get_object(self):
+        queryset = self.get_queryset()
+        # self.request.data._mutable = True
+        validation = self.request.data['password'] = check_password(self.request.data['password'],
+                                                                    queryset.values('password').first()['password'])
+        print(validation)
+        if validation:
+            self.request.data['password'] = queryset.values('password').first()['password']
+        # self.request.data._mutable = False
+        filter = {}
+        for field in self.multiple_lookup_fields:
+            filter[field] = self.request.data[field]
+
+        obj = get_object_or_404(queryset, **filter)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def post(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)

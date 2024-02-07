@@ -1,4 +1,10 @@
+from datetime import datetime, timedelta
+
+import jwt
+from django.contrib.auth.hashers import check_password
 from django.db import models
+
+from wanimein import settings
 
 
 class TimestampedModel(models.Model):
@@ -37,7 +43,7 @@ class Year(TimestampedModel):
 
 class Movie_Info(TimestampedModel):
     name = models.CharField(db_index=True)
-    remark = models.CharField(default=None, null=True,  db_index=True)
+    remark = models.CharField(default=None, null=True, db_index=True)
     picture = models.TextField()
     type = models.IntegerField(db_index=True)
 
@@ -54,12 +60,12 @@ class Movie_Genre(TimestampedModel):
 
 
 class User(TimestampedModel):
-    login = models.CharField(db_index=True, max_length=255)
+    login = models.CharField(db_index=True, max_length=255, unique=True)
     password = models.CharField(max_length=255)
     ip = models.CharField(db_index=True, max_length=255)
 
     USERNAME_FIELD = 'login'
-    REQUIRED_FIELDS = ('login','password')
+    REQUIRED_FIELDS = ('login', 'password')
 
     @property
     def is_anonymous(self):
@@ -68,6 +74,21 @@ class User(TimestampedModel):
         anonymous users.
         """
         return False
+
+    @property
+    def token(self):
+        return self._generate_jwt_token()
+
+    def _generate_jwt_token(self):
+        dt = datetime.now() + timedelta(days=60)
+
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(dt.strftime('%s'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        return token.decode('utf-8')
+
     def __str__(self):
         return self.login
 
@@ -76,7 +97,7 @@ class Comment(TimestampedModel):
     text = models.TextField()
 
     author = models.ForeignKey(User, related_name='author', on_delete=models.RESTRICT)
-    respondent = models.ForeignKey(User,  related_name='respondent', on_delete=models.RESTRICT)
+    respondent = models.ForeignKey(User, related_name='respondent', on_delete=models.RESTRICT)
 
     def __str__(self):
         return self.text

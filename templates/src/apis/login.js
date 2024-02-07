@@ -4,8 +4,8 @@ import httpRequest from '../request/index'
 // 注册
 export function register(data) {
 	return httpRequest({
-		url: '/auth/register',
-		method: 'post',
+		url: '/auth',
+		method: 'put',
 		data: data,
 	})
 }
@@ -13,7 +13,7 @@ export function register(data) {
 // 登录
 export default function login(data) {
     return httpRequest({
-		url: '/auth/login',
+		url: '/auth',
 		method: 'post',
 		data: data,
 	})

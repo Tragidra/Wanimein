@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from django.contrib.auth.hashers import make_password
 from wanimein.api.models import (Genre, Country, Movie_Genre, Movie_Details, Movie_Info, Movie_Actors,
                                  Comment, Actors, Year, User, Episode, Collection, Types)
 
@@ -22,6 +22,11 @@ class GenreSerializer(serializers.ModelSerializer):
         return Genre.objects.create(
             **validated_data
         )
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
@@ -49,6 +54,11 @@ class CountrySerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
+
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
 
@@ -74,6 +84,11 @@ class YearSerializer(serializers.ModelSerializer):
         return Year.objects.create(
             **validated_data
         )
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
@@ -111,6 +126,16 @@ class Movie_InfoSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.remark = validated_data.get('remark', instance.remark)
+        instance.picture = validated_data.get('picture', instance.picture)
+        instance.type = validated_data.get('type', instance.type)
+        instance.country = validated_data.get('country', instance.country)
+        instance.year = validated_data.get('year', instance.year)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
+
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
 
@@ -141,6 +166,12 @@ class Movie_GenreSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+    def update(self, instance, validated_data):
+        instance.genre = validated_data.get('genre', instance.genre)
+        instance.movie_info = validated_data.get('movie_info', instance.movie_info)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
+
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
 
@@ -167,6 +198,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        validated_data['password'] = make_password(validated_data['password'])
         return User.objects.create(
             **validated_data
         )
@@ -176,6 +208,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_updated_at(self, instance):
         return instance.updated_at.isoformat()
+
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     representation['password'] = make_password(representation['password'])
+    #
+    #     return representation
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -200,6 +238,13 @@ class CommentSerializer(serializers.ModelSerializer):
         return Comment.objects.create(
             **validated_data
         )
+
+    def update(self, instance, validated_data):
+        instance.text = validated_data.get('text', instance.text)
+        instance.author = validated_data.get('author', instance.author)
+        instance.respondent = validated_data.get('respondent', instance.author)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
@@ -228,6 +273,12 @@ class ActorsSerializer(serializers.ModelSerializer):
         return Actors.objects.create(
             **validated_data
         )
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.people = validated_data.get('people', instance.people)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
@@ -273,6 +324,20 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.picture = validated_data.get('picture', instance.picture)
+        instance.language = validated_data.get('language', instance.language)
+        instance.all_episodes = validated_data.get('all_episodes', instance.all_episodes)
+        instance.current_episodes = validated_data.get('current_episodes', instance.current_episodes)
+        instance.director = validated_data.get('director', instance.director)
+        instance.last_episode = validated_data.get('last_episode', instance.last_episode)
+        instance.synopsis = validated_data.get('synopsis', instance.synopsis)
+        instance.country = validated_data.get('country', instance.country)
+        instance.year = validated_data.get('year', instance.year)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
+
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
 
@@ -303,6 +368,12 @@ class Movie_ActorsSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
+    def update(self, instance, validated_data):
+        instance.movie_details = validated_data.get('movie_details', instance.movie_details)
+        instance.actor = validated_data.get('actor', instance.actor)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
+
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
 
@@ -329,6 +400,11 @@ class EpisodeSerializer(serializers.ModelSerializer):
         return Episode.objects.create(
             **validated_data
         )
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
@@ -357,6 +433,12 @@ class CollectionSerializer(serializers.ModelSerializer):
         return Collection.objects.create(
             **validated_data
         )
+
+    def update(self, instance, validated_data):
+        instance.user = validated_data.get('user', instance.user)
+        instance.movie_details = validated_data.get('movie_details', instance.movie_details)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
