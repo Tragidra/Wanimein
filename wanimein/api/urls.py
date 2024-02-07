@@ -35,7 +35,7 @@ urlpatterns = [
         'get': 'list',
         'put': 'new'
     })),
-    re_path('movie_actors', views.Movie_ActorsView.as_view({
+    re_path('movie_actor', views.Movie_ActorsView.as_view({
         'get': 'list',
         'put': 'new'
     })),

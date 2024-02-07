@@ -94,7 +94,8 @@ class Movie_Details(TimestampedModel):
     name = models.CharField(db_index=True)
     picture = models.TextField()
     language = models.CharField(db_index=True)
-    episodes = models.IntegerField(db_index=True)
+    all_episodes = models.IntegerField(db_index=True)
+    current_episodes = models.IntegerField(db_index=True)
     director = models.CharField(db_index=True)
     last_episode = models.DateTimeField()
     synopsis = models.TextField()
@@ -107,8 +108,8 @@ class Movie_Details(TimestampedModel):
 
 
 class Movie_Actors(TimestampedModel):
-    movie = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
     actor = models.ForeignKey(Actors, on_delete=models.RESTRICT)
+    movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
 
 
 class Episode(TimestampedModel):

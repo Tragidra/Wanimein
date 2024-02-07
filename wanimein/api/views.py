@@ -206,7 +206,7 @@ class CommentView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upd
 
 class ActorsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                  viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'name'
     serializer_class = ActorsSerializer
     queryset = Actors.objects.all()
 
@@ -232,13 +232,13 @@ class ActorsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upda
 
 class Movie_ActorsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                        viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'id'
     serializer_class = Movie_ActorsSerializer
     queryset = Movie_Actors.objects.all()
 
     def get_queryset(self):
         mov_id = self.request.query_params.get('vod_id', None)
-        queryset = self.queryset.filter(movie_id=mov_id)
+        queryset = self.queryset.filter(movie_details_id=mov_id)
 
         return queryset
 

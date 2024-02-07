@@ -21,7 +21,7 @@ export function apiGetMovGenres(param){
 
 export function apiGetMovActors(param){
 	return httpRequest({
-		url: '/movie_actors',
+		url: '/movie_actor',
 		method: 'get',
 		params: param,
 	})

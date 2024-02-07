@@ -36,7 +36,7 @@
                 <el-row>
                     <span class="des-name">
                         Жанр:&nbsp;&nbsp;
-                        <p v-for="mog in movie_genres" class="des-content">{{ mog.genre + ' ' }}</p>
+                        <p v-for="mog in movie_genres" class="des-content">{{ mog.genre_name + ' ' }}</p>
                     </span>
                     
                 </el-row>
@@ -52,7 +52,7 @@
                 <el-row>
                     <span class="des-name">
                         Эпизоды:&nbsp; &nbsp;
-                        <p class="des-content">{{ movie_detail.episodes }}</p>
+                        <p class="des-content">{{ movie_detail.current_episodes + '/' + movie_detail.all_episodes }}</p>
                     </span>
                     
                 </el-row>
@@ -87,7 +87,7 @@
                 <el-row>
                     <span class="des-name">
                         Главные персонажи:&nbsp;&nbsp;
-                        <p v-for="mog in movie_actors" class="des-content">{{ mog.actor + ' ' }}</p>
+                        <p v-for="mog in movie_actors" class="des-content">{{ mog.actor_name + ' ' }}</p>
                     </span>
                     
                 </el-row>
