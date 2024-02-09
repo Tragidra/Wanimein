@@ -13,23 +13,23 @@
             v-show="contenshow">
       <el-col 
         v-for="o in movieList"
-        :key="o.vod_id"
+        :key="o.id"
         :xs="8" :sm="4" :md="4" 
         style="padding: 9px;">   
-        <router-link :to="'/movdetail/'+ o.vod_id" style="text-decoration: none;" target="_blank">
+        <router-link :to="'/movdetail/'+ o.id" style="text-decoration: none;" target="_blank">
         <el-card
         class="box-card" 
         shadow="hover"
         :body-style="{ padding: '8px 5px' }">
         <div class="card-div">
           <img :src="o.vod_pic" class="card-image"/>
-          <span class="card-remark">{{ o.vod_remarks }}</span>
+          <span class="card-remark">{{ o.remark }}</span>
         </div>
         <div style="padding: 0px;">
           
           <span style="line-height: 26px; font-size: 15px; color:#777; display: flex; margin-top: 4px; text-overflow: ellipsis; overflow: hidden; width: 80%; white-space: nowrap;">
-            <el-tooltip class="box-item" effect="dark" :content="o.vod_name" placement="bottom-end" :show-after="1000">
-            {{ o.vod_name }}
+            <el-tooltip class="box-item" effect="dark" :content="o.name" placement="bottom-end" :show-after="1000">
+            {{ o.name }}
             </el-tooltip>
           </span>
           <!-- <div class="bottom">

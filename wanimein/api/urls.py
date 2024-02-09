@@ -49,7 +49,11 @@ urlpatterns = [
     })),
     re_path('collection', views.CollectionView.as_view({
         'get': 'list',
-        'put': 'new'
+        'put': 'new',
+        'post': 'remove'
+    })),
+    path('check', views.CheckCollectionView.as_view({
+        'get': 'check_collect'
     })),
     re_path('types', views.TypesView.as_view({
         'get': 'list',

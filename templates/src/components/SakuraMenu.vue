@@ -28,7 +28,7 @@
     <div style="position: absolute; right: 0px;">
         <el-dropdown class="login-out" style="margin: 15px 11px" v-if="isLogining"  trigger="click">
           <span class="el-dropdown-link">
-            {{ user.name }}
+            {{ user.login }}
             <el-icon class="el-icon--right"><arrow-down /></el-icon>
           </span>
           <template #dropdown>
@@ -59,7 +59,7 @@ import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { localRemove } from '../utils'
+import {localGet, localRemove} from '../utils'
 import { getUserInfo } from '../apis/login'
 import { ElMessage } from 'element-plus'
 
@@ -120,17 +120,19 @@ export default {
 
         getUserInfo() {
           if (this.isLogining) {
-            // 已登录用户获取用户名
-            getUserInfo().then(
+            var param = {
+              token: localGet('token')
+            }
+            getUserInfo(param).then(
               (res) => {
                 // console.log(res.data)
-                if (res.data.code == 200) {
-                  this.store.state.appStore.user = res.data.data
+                if (res.results !== null) {
+                  this.store.state.appStore.user = res.results[0]
                   this.user = this.store.state.appStore.user
-                  // console.log(this.user)
+
                 } else {
                 ElMessage({
-                message: res.data.message,
+                message: 'Что-то пошло не так, попробуйте позднее',
                 type: 'warning',
                 })
             }
@@ -166,7 +168,15 @@ export default {
     },
 
     created() {
-      this.getUserInfo()
+      //Идея со стором не сработала, позже оптимизировать запрос путём кэширования
+      if (Object.keys(this.store.state.appStore.user).length === 0){
+        const token = localGet('token');
+        if (token !== null){
+          this.getUserInfo()
+        }
+      } else {
+        this.user = this.store.state.appStore.user
+      }
     },
 
     watch: {

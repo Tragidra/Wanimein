@@ -20,9 +20,10 @@ export default function login(data) {
 }
 
 // 获取用户信息
-export function getUserInfo() {
+export function getUserInfo(params) {
 	return httpRequest({
-		url: '/auth/user',
+		url: '/auth',
 		method: 'get',
+		params: params
 	})
 }

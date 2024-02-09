@@ -134,7 +134,7 @@ import apiGetMovDetail, {apiGetMovActors, apiGetMovGenres} from '../apis/getMovD
 import myVideoPlay from './VideoPlay.vue'
 import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
-import { useStore } from 'vuex'
+import {mapGetters, useStore} from 'vuex'
 import { isCollectVideo, addCollectVideo, removeCollectVideo } from '../apis/videoCollection'
 
 export default {
@@ -192,17 +192,17 @@ export default {
         // 将此视频添加收藏
         console.log("add collect")
         if (this.store.state.appStore.isLogining) {
-            var params = {
-                vod_id: this.vod_id,
-                user_id: this.store.state.appStore.user.id
-            }
-            addCollectVideo(params).then(
+          const data = {
+            movie_details: this.vod_id,
+            user: this.store.state.appStore.user.id
+          };
+          addCollectVideo(data).then(
                 (res) => {
-                    if (res.data.code == 200) {
+                    if (res.results !== null) {
                         this.isCollect = 1
                     } else {
                         ElMessage({
-                                message: res.data.message,
+                                message: 'Что-то пошло не так, попробуйте позже',
                                 type: 'warning',
                             })
                     }
@@ -219,17 +219,17 @@ export default {
     removeCollect() {
         console.log("remove collect")
         if (this.store.state.appStore.isLogining) {
-            var params = {
-                vod_id: this.vod_id,
-                user_id: this.store.state.appStore.user.id
+            var data = {
+                movie_details: this.vod_id,
+                user: this.store.state.appStore.user.id
             }
-            removeCollectVideo(params).then(
+            removeCollectVideo(data).then(
                 (res) => {
-                    if (res.data.code == 200) {
+                    if (res.results !== null) {
                         this.isCollect = 0
                     } else {
                         ElMessage({
-                                message: res.data.message,
+                                message: 'Что-то пошло не так, пожалуйста, попробуйте позже',
                                 type: 'warning',
                             })
                     }
@@ -244,25 +244,22 @@ export default {
     },
 
     showIsCollect() {
-        // 显示此视频是否被收藏
         if (this.store.state.appStore.isLogining) {
             var params = {
-                vod_id: this.vod_id,
-                user_id: this.store.state.appStore.user.id
+                movie_details: this.vod_id,
+                user: this.store.state.appStore.user.id
             }
-            isCollectVideo(params).then(
-                (res) => {
-                    if (res.data.code == 200) {
-                        this.isCollect = res.data.data
-                        console.log(this.isCollect)
+            if(params.user !== undefined) {
+              isCollectVideo(params).then(
+                  (res) => {
+                    if (res.results !== null) {
+                      this.isCollect = 1
                     } else {
-                        ElMessage({
-                                message: res.data.message,
-                                type: 'warning',
-                            })
+
                     }
-                }
-            )
+                  }
+              )
+            }
         }
     },
 
@@ -276,7 +273,7 @@ export default {
             this.activeName = play_url
         } else {
             ElMessage({
-                message: '导入视频失败',
+                message: 'Не удалось загрузить видео',
                 type: 'warning',
                 })
         }
@@ -299,22 +296,28 @@ export default {
     }
   },
 
-   watch: {
+  watch: {
       // user出现变化后 请求数据 查看是视频是否被收藏
-      moniterUser() {
+    moniterUser() {
         return this.store.state.appStore.user.id
-      }
-    },
+    }
+  },
 
-    computed: {
+    //На случай если пользователь поменяется на странице
+  computed: {
       moniterUser() {
         this.showIsCollect()
       }
-    },
+  },
 
 
   created() {
-    this.getMovDetail()
+    this.getMovDetail();
+
+  },
+
+  mounted() {
+    this.showIsCollect();
   }
 
 }

@@ -1,10 +1,12 @@
 from itertools import chain
 
+import jwt
 from django.contrib.auth.hashers import check_password, make_password
 from rest_framework import mixins, viewsets, generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from wanimein import settings
 from wanimein.api.models import Movie_Info, Genre, Country, Comment, Movie_Genre, Movie_Details, Movie_Actors, \
     Collection, Actors, Year, Episode, Types, User
 from wanimein.api.serializers import Movie_InfoSerializer, Movie_DetailsSerializer, Movie_ActorsSerializer, \
@@ -262,7 +264,7 @@ class Movie_ActorsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixin
 
 class EpisodeView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                   viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'id'
     serializer_class = EpisodeSerializer
     queryset = Episode.objects.all()
 
@@ -288,14 +290,30 @@ class EpisodeView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upd
 
 class CollectionView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                      viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'id'
+    multiple_lookup_fields = ['user', 'movie_details']
     serializer_class = CollectionSerializer
     queryset = Collection.objects.all()
 
     def get_queryset(self):
         queryset = self.queryset
+        movie_detail = self.request.query_params.get('movie_detail', None)
+        user = self.request.query_params.get('user', None)
+        if movie_detail is not None and user is not None:
+            queryset = self.queryset.filter(movie_detail=movie_detail, user=user)
+        elif user is not None:
+            queryset = self.queryset.filter(user=user)
 
         return queryset
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        filter = {}
+        for field in self.multiple_lookup_fields:
+            filter[field] = self.request.data[field]
+
+        obj = get_object_or_404(queryset, **filter)
+        return obj
 
     def list(self, request):
         serializer_context = {'request': request}
@@ -310,6 +328,40 @@ class CollectionView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.
 
     def new(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+    def remove(self, request, *args, **kwargs):
+        return self.destroy(self, request, *args, **kwargs)
+
+
+class CheckCollectionView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                     viewsets.GenericViewSet, mixins.DestroyModelMixin):
+    lookup_field = 'id'
+    multiple_lookup_fields = ['user', 'movie_details']
+    serializer_class = CollectionSerializer
+    queryset = Collection.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
+        movie_detail = self.request.query_params.get('movie_detail', None)
+        user = self.request.query_params.get('user', None)
+        if movie_detail is not None and user is not None:
+            queryset = self.queryset.filter(movie_detail=movie_detail, user=user)
+        elif user is not None:
+            queryset = self.queryset.filter(user=user)
+
+        return queryset
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        filter = {}
+        for field in self.multiple_lookup_fields:
+            filter[field] = self.request.query_params[field]
+
+        obj = get_object_or_404(queryset, **filter)
+        return obj
+
+    def check_collect(self, request, *args, **kwargs):
+        return self.retrieve(self, request, *args, **kwargs)
 
 
 class TypesView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
@@ -339,7 +391,7 @@ class TypesView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
 
 
 class UserView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                generics.GenericAPIView, mixins.DestroyModelMixin):
+               generics.GenericAPIView, mixins.ListModelMixin):
     lookup_field = 'id'
     multiple_lookup_fields = ['login', 'password']
     serializer_class = UserSerializer
@@ -347,16 +399,21 @@ class UserView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Update
 
     def get_queryset(self):
         # self.request = self.request.copy()
-        queryset = self.queryset
+        token = self.request.query_params.get('token', None)
+        if token is not None:
+            id = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            queryset = self.queryset.filter(id=id['id'])
+        else:
+            queryset = self.queryset
         return queryset
 
     '''Разрешить мутацию при запросах с Постмана'''
+
     def get_object(self):
         queryset = self.get_queryset()
         # self.request.data._mutable = True
         validation = self.request.data['password'] = check_password(self.request.data['password'],
                                                                     queryset.values('password').first()['password'])
-        print(validation)
         if validation:
             self.request.data['password'] = queryset.values('password').first()['password']
         # self.request.data._mutable = False
@@ -373,3 +430,6 @@ class UserView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Update
 
     def put(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

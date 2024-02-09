@@ -69,16 +69,25 @@ export default {
             password: state.ruleForm.password,
             ip: window.location.host,
           }).then(res => {
+            console.log(res)
             if (res.results !== null) {
-                localSet('token', res.data.token)
+                localSet('token', res.token)
                 window.location.href = '/'
             } else {
                 ElMessage({
-                message: res.data.message,
+                message: 'Что-то пошло не так, попробуйте авторизоваться позже',
                 type: 'warning',
                 })
             }
-          })
+          }).catch(
+              () => {
+                console.log('Пользователь не найден')
+                ElMessage({
+                message: 'Никнейм или пароль указанного пользователя введены неправильно',
+                type: 'warning',
+                })
+              }
+          )
         } else {
           console.log('error login!!')
           return false;

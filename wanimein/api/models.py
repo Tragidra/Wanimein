@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import jwt
 from django.contrib.auth.hashers import check_password
@@ -80,14 +80,14 @@ class User(TimestampedModel):
         return self._generate_jwt_token()
 
     def _generate_jwt_token(self):
-        dt = datetime.now() + timedelta(days=60)
-
+        # dt = datetime.now(tz=timezone.utc) + timedelta(days=7)
         token = jwt.encode({
             'id': self.pk,
-            'exp': int(dt.strftime('%s'))
+            # 'exp': int(dt.strftime('%S'))
         }, settings.SECRET_KEY, algorithm='HS256')
 
-        return token.decode('utf-8')
+        return token
+        # return token.decode('utf-8')
 
     def __str__(self):
         return self.login

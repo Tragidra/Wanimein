@@ -209,11 +209,11 @@ class UserSerializer(serializers.ModelSerializer):
     def get_updated_at(self, instance):
         return instance.updated_at.isoformat()
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation['password'] = make_password(representation['password'])
-    #
-    #     return representation
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['token'] = instance.token
+
+        return representation
 
 
 class CommentSerializer(serializers.ModelSerializer):
