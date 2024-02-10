@@ -2,28 +2,29 @@
 import httpRequest from '../request/index'
 
 // 注册
-export function postComments(vod_id, data) {
-    var url = '/publish/comment/' + vod_id
+export function postComments(data) {
+    var url = '/comment'
 	return httpRequest({
 		url: url,
-		method: 'post',
+		method: 'put',
 		data: data,
 	})
 }
 
-export function showComments(vod_id) {
-    var url = '/show/comment/' + vod_id
+export function showComments(param) {
+    var url = '/comment'
 	return httpRequest({
 		url: url,
 		method: 'get',
+		params: param,
 	})
 }
 
-export function replyComment(comment_id, data) {
-    var url = '/reply/comment/' + comment_id
+export function replyComment(data) {
+    var url = '/comment'
 	return httpRequest({
 		url: url,
-		method: 'post',
+		method: 'put',
         data: data
 	})
 }

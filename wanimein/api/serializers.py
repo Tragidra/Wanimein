@@ -219,7 +219,9 @@ class UserSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     text = serializers.CharField()
     author = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=User.objects.all())
-    respondent = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=User.objects.all())
+    author_name = serializers.StringRelatedField(source='author', read_only=True)
+    respondent = serializers.IntegerField(allow_null=True)
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -229,7 +231,9 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'text',
             'author',
+            'author_name',
             'respondent',
+            'movie_details',
             'createdAt',
             'updatedAt',
         )

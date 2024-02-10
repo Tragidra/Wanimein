@@ -185,12 +185,13 @@ class Movie_GenreView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins
 
 class CommentView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                   viewsets.GenericViewSet, mixins.DestroyModelMixin):
-    lookup_field = 'slug'
+    lookup_field = 'id'
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
     def get_queryset(self):
-        queryset = self.queryset
+        mov_id = self.request.query_params.get('movie_details', None)
+        queryset = self.queryset.filter(movie_details_id=mov_id)
 
         return queryset
 

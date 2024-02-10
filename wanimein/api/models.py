@@ -93,16 +93,6 @@ class User(TimestampedModel):
         return self.login
 
 
-class Comment(TimestampedModel):
-    text = models.TextField()
-
-    author = models.ForeignKey(User, related_name='author', on_delete=models.RESTRICT)
-    respondent = models.ForeignKey(User, related_name='respondent', on_delete=models.RESTRICT)
-
-    def __str__(self):
-        return self.text
-
-
 class Actors(TimestampedModel):
     name = models.CharField(db_index=True)
     people = models.BooleanField(db_index=True)
@@ -126,6 +116,17 @@ class Movie_Details(TimestampedModel):
 
     def __str__(self):
         return self.name
+
+
+class Comment(TimestampedModel):
+    text = models.TextField()
+    respondent = models.IntegerField(db_index=True, null=True)
+
+    author = models.ForeignKey(User, related_name='author', on_delete=models.RESTRICT, null=True)
+    movie_details = models.ForeignKey(Movie_Details, related_name='movie_details', on_delete=models.RESTRICT, null=True)
+
+    def __str__(self):
+        return self.text
 
 
 class Movie_Actors(TimestampedModel):

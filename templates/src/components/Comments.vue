@@ -20,12 +20,12 @@
         <el-divider />
         <!-- 评论人信息 -->
         <el-row class="comment-username" :id="comment.id">
-            {{ comment.user_name }} &nbsp;&nbsp; {{comment.time }}
+            {{ comment.author_name }} &nbsp;&nbsp; {{comment.created_at }}
             <el-button link style="position:absolute; right: 10%" @click="showReplyForm">Ответить</el-button>
         </el-row>
         <!-- 评论内容 -->
         <el-row class="comment-p" style="padding: 10px" >
-            {{ comment.body }}
+            {{ comment.text }}
         </el-row>
         <!-- 回复框 -->
         <el-row class="comment-reply-form" style="display: none" :id="'reply-' + comment.id">
@@ -74,12 +74,12 @@ export default {
         
         const commentForm = reactive({
                 body: '',
-                user_id: '',
+                user: '',
             })
 
         const replyComment = reactive({
-                body: '',
-                user_id: ''
+                text: '',
+                user: ''
             })
 
         return {
@@ -102,35 +102,43 @@ export default {
     methods: {
         publishComment() {
             if (this.store.state.appStore.isLogining) {
-                // 登录状态发布评论
-                this.commentForm.user_id = this.store.state.appStore.user.id
-                postComments(this.vod_id, this.commentForm).then(
+                this.commentForm.user_id = this.store.state.appStore.user.id;
+                var params = {
+                movie_details: this.vod_id,
+                author: this.commentForm.user_id,
+                text: this.commentForm.body,
+                respondent: null
+                };
+                postComments(params).then(
                     res => {
-                        if (res.data.code == 200) {
+                        if (res.results !== null) {
                             this.showVodComment()
                             this.commentForm.body = ''
                         } else {ElMessage({
-                                    message: res.data.message,
+                                    message: 'Что-то пошло не так, попробуйте ещё раз позднее',
                                     type: 'warning',
                                     })}
                                 }
                             )
             } else {
                 ElMessage({
-                message: "Пожалуйста, войдите ещё раз",
+                message: "Пожалуйста, войдите в свой аккаунт",
                 type: 'warning',
                 })
             }
         },
 
         showVodComment() {
-            showComments(this.vod_id).then(
+            var params = {
+              movie_details: this.vod_id
+            };
+            showComments(params).then(
                 res => {
-                    if (res.data.code == 200) {
-                        this.comments = res.data.data
+                    if (res.results !== null) {
+                        this.comments = res.results
                     } else {
                         ElMessage({
-                                    message: res.data.message,
+                                    message: 'Что-то пошло не так, комментарии не смогли прогрузиться',
                                     type: 'warning',
                                     })}
                                 }
@@ -153,23 +161,27 @@ export default {
             
             if (this.store.state.appStore.isLogining) {
                 // 登录状态回复评论
-                var comment_id = e.currentTarget.parentElement.parentElement.parentElement.parentElement.id.split('-')[1]
-                this.replyComment.user_id = this.store.state.appStore.user.id
-                console.log(this.replyComment)
-                replyComment(comment_id, this.replyComment).then(
+                var comment_id = e.currentTarget.parentElement.parentElement.parentElement.parentElement.id.split('-')[1];
+                this.replyComment.user_id = this.store.state.appStore.user.id;
+                var params = {
+                  respondent: comment_id,
+                  user: this.replyComment.user,
+                  text: this.replyComment.text,
+                };
+                replyComment(params).then(
                     res => {
-                        if (res.data.code == 200) {
+                        if (res.results !== null) {
                             this.replyComment.body = ''
                             this.showVodComment()
                         } else {ElMessage({
-                                    message: res.data.message,
+                                    message: 'Что-то пошло не так, комментарий не был отправлен',
                                     type: 'warning',
                                     })}
                                 }
                             )
             } else {
                 ElMessage({
-                message: "Пожалуйста, войдите ещё раз",
+                message: "Пожалуйста, войдите в свой аккаунт",
                 type: 'warning',
                 })
             }
