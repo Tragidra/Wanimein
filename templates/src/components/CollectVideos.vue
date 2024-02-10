@@ -22,7 +22,7 @@
         shadow="hover"
         :body-style="{ padding: '8px 5px' }">
         <div class="card-div">
-          <img :src="o.vod_pic" class="card-image"/>
+          <img :src="o.picture" class="card-image"/>
           <span class="card-remark">{{ o.remark }}</span>
         </div>
         <div style="padding: 0px;">
@@ -100,11 +100,11 @@ export default {
           showCollectVideo(param).then(
             (res) => { 
               // console.log(res)
-              if (res.data.data.length > 0) {
+              if (res.results !== null) {
                 this.contentShow = true
                 this.infiniteMsgShow = true
-                  for (var i in res.data.data) {
-                    this.movieList.push(res.data.data[i])
+                  for (var i in res.results) {
+                    this.movieList.push(res.results[i])
                  }
                   this.disabled = false // 还有多余数据时 无限滚动打开
               } else {

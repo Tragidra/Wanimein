@@ -317,9 +317,13 @@ class CollectionView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.
 
     def list(self, request):
         serializer_context = {'request': request}
-        page = self.paginate_queryset(self.get_queryset())
-
-        serializer = self.serializer_class(
+        queryset = self.get_queryset()
+        ids = []
+        movie_details = queryset.values('movie_details')
+        for i in range(len(movie_details)):
+            ids.append(movie_details[i]['movie_details'])
+        page = self.paginate_queryset(Movie_Info.objects.all().filter(id__in=ids))
+        serializer = Movie_InfoSerializer(
             page,
             context=serializer_context,
             many=True

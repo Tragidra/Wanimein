@@ -22,14 +22,14 @@
         :body-style="{ padding: '8px 5px' }">
         <div class="card-div">
           <img :src="o.picture" class="card-image"/>
-          <span class="card-remark">{{ o.remark }}</span>
+          <span class="card-remark">{{ o.name }}</span>
         </div>
       
         <div style="padding: 0px;">
           
           <span style="line-height: 26px; font-size: 15px; color:#777; display: flex; margin-top: 4px; text-overflow: ellipsis; overflow: hidden; width: 80%; white-space: nowrap;">
             <el-tooltip class="box-item" effect="dark" :content="o.name" placement="bottom-end" :show-after="1000">
-            {{ o.name }}
+            {{ o.remark }}
             </el-tooltip>
           </span>
           <!-- <div class="bottom">
@@ -65,8 +65,8 @@ export default {
       const type_id_names = {
         1: "Аниме",
         2: "Фильмы",
-        3: "Варьете",
-        4: "Сериалы",
+        3: "Сериалы",
+        4: "Дорамы",
     }
       return {
             store,

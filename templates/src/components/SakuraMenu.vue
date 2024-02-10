@@ -14,7 +14,7 @@
     <el-menu-item index="/movtype/1">Аниме</el-menu-item>
     <el-menu-item index="/movtype/2">Фильмы</el-menu-item>
     <el-menu-item index="/movtype/3">Сериалы</el-menu-item>
-    <el-menu-item index="/movtype/4">Варьете</el-menu-item>
+    <el-menu-item index="/movtype/4">Дорамы</el-menu-item>
     <!-- <el-menu-item index="/movtype/5">社区</el-menu-item> -->
     <div class="menu-input">
       <el-input
