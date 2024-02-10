@@ -52,7 +52,7 @@
                 <el-row>
                     <span class="des-name">
                         Эпизоды:&nbsp; &nbsp;
-                        <p class="des-content">{{ movie_detail.current_episodes + '/' + movie_detail.all_episodes }}</p>
+                        <p class="des-content">{{ movie_detail.current_episodes + ' / ' + movie_detail.all_episodes }}</p>
                     </span>
                     
                 </el-row>
@@ -106,7 +106,7 @@
 
         <el-row class="vod-play-url">
             <el-col class="vod-play-url"
-                v-for="v, k in movie_detail.vod_play_url"
+                v-for="v, k in movie_detail.episodes"
                 :key="k"
                 :href="v"
                 :xs="8" :sm="3"
@@ -117,7 +117,7 @@
                 style="float: left;" 
                 @click="videoPlay" 
                 :class="[{active: activeName == v}]"
-                :href="v">{{ k }}
+                :href="v">{{ v.name }}
                 </el-button>
             </el-col>
         </el-row>
@@ -266,7 +266,6 @@ export default {
     videoPlay(v) {
         // 点击按钮时修改 视频播放的链接
         var play_url = v.currentTarget.attributes.href.value
-        console.log(play_url)
         if (play_url) {
             this.video_play = true
             this.video_play_url = play_url

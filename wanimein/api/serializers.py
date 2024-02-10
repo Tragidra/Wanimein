@@ -342,6 +342,13 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
         instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
         return instance
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['episodes'] = (Episode.objects.filter(movie_details=representation['id'])
+                                      .values('id', 'name').order_by('id'))
+
+        return representation
+
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
 
@@ -387,6 +394,7 @@ class Movie_ActorsSerializer(serializers.ModelSerializer):
 
 class EpisodeSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
+    url = serializers.CharField()
     movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
@@ -396,6 +404,8 @@ class EpisodeSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
+            'url',
+            'movie_details',
             'createdAt',
             'updatedAt',
         )

@@ -20,7 +20,7 @@
         <el-divider />
         <!-- 评论人信息 -->
         <el-row class="comment-username" :id="comment.id">
-            {{ comment.author_name }} &nbsp;&nbsp; {{comment.created_at }}
+            {{ comment.author_name }} &nbsp;&nbsp; {{comment.createdAt }}
             <el-button link style="position:absolute; right: 10%" @click="showReplyForm">Ответить</el-button>
         </el-row>
         <!-- 评论内容 -->
