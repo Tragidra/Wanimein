@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'wanimein.api',
+    'video',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +81,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 6
 }
+
+ASGI_APPLICATION = 'wanimein.video.routing.application'
 
 WSGI_APPLICATION = 'wanimein.wsgi.application'
 

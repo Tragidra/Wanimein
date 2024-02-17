@@ -115,7 +115,7 @@
                 <el-button 
                 class="vod-play-url" 
                 style="float: left;" 
-                @click="videoPlay" 
+                @click="videoPlay(v)"
                 :class="[{active: activeName == v}]"
                 :href="v">{{ v.name }}
                 </el-button>
@@ -265,7 +265,9 @@ export default {
 
     videoPlay(v) {
         // 点击按钮时修改 视频播放的链接
-        var play_url = v.currentTarget.attributes.href.value
+        var play_url = v.url
+        console.log(v)
+        console.log('Вот что просили')
         if (play_url) {
             this.video_play = true
             this.video_play_url = play_url

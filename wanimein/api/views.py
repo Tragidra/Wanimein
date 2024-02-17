@@ -1,7 +1,12 @@
+import mimetypes
+import os
+import pathlib
+import subprocess
 from itertools import chain
 
 import jwt
 from django.contrib.auth.hashers import check_password, make_password
+from django.http import HttpResponseNotFound, StreamingHttpResponse
 from rest_framework import mixins, viewsets, generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -13,6 +18,8 @@ from wanimein.api.serializers import Movie_InfoSerializer, Movie_DetailsSerializ
     Movie_GenreSerializer, GenreSerializer, CommentSerializer, CountrySerializer, CollectionSerializer, \
     EpisodeSerializer, ActorsSerializer, YearSerializer, TypesSerializer, \
     UserSerializer
+
+VIDEO_ROOT = r"C:\Users\Krulzifer\PycharmProjects\wanimein\wanimein\api\source"
 
 
 class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
@@ -339,7 +346,7 @@ class CollectionView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.
 
 
 class CheckCollectionView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                     viewsets.GenericViewSet, mixins.DestroyModelMixin):
+                          viewsets.GenericViewSet, mixins.DestroyModelMixin):
     lookup_field = 'id'
     multiple_lookup_fields = ['user', 'movie_details']
     serializer_class = CollectionSerializer
@@ -438,3 +445,52 @@ class UserView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Update
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+
+def stream(request):
+    name = request.GET['name']
+    video_path = os.path.join(VIDEO_ROOT, name)
+
+    # Проверяем, существует ли файл
+    if not os.path.exists(video_path):
+        return HttpResponseNotFound("Файл не найден")
+
+    # Определяем MIME-тип файла
+    mime_type, _ = mimetypes.guess_type(video_path)
+    response = StreamingHttpResponse(content_type=mime_type)
+
+    video_path = pathlib.PureWindowsPath(video_path).as_posix()
+    # Функция для потоковой передачи данных
+    def stream_video():
+        cmd = [
+            'ffmpeg',
+            '-i', video_path,
+            '-f', 'webm',  # или другой формат, поддерживаемый браузерами
+            '-c:v', 'libvpx',
+            '-b:v', '1M',
+            '-c:a', 'libvorbis',
+            '-b:a', '128k',
+            '-vf', 'scale=640:-1',  # измените разрешение, если нужно
+            '-f', 'webm',
+            '-'
+        ]
+
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+        try:
+            while True:
+                data = process.stdout.read(1024)
+                if not data:
+                    break
+                yield data
+        except GeneratorExit:
+            # Завершаем процесс, если поток закрыт
+            process.terminate()
+
+    response['Content-Disposition'] = f'inline; filename="{name}"'
+    response['Cache-Control'] = 'no-cache'
+    response['Accept-Ranges'] = 'bytes'
+    response['Content-Length'] = os.path.getsize(video_path)
+    response.streaming_content = stream_video()
+
+    return response

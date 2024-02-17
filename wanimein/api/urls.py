@@ -60,4 +60,5 @@ urlpatterns = [
         'put': 'new'
     })),
     path('auth', views.UserView.as_view(), name='user'),
+    path('video', views.stream, name='video')
 ]

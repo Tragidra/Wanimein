@@ -345,7 +345,7 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['episodes'] = (Episode.objects.filter(movie_details=representation['id'])
-                                      .values('id', 'name').order_by('id'))
+                                      .values('id', 'name', 'url').order_by('id'))
 
         return representation
 
