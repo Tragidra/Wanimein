@@ -1,38 +1,15 @@
 # views.py
 
 import os
-import mimetypes
-import subprocess
-from django.http import StreamingHttpResponse, HttpResponseNotFound, JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse
+from .tasks import video_cut
 
 VIDEO_ROOT = r"C:\Users\Krulzifer\PycharmProjects\wanimein\video\source"
 out_root_playlist = r"C:\Users\Krulzifer\PycharmProjects\wanimein\video\hls"
 
 
 def make_hls(request, filename):
-    file = os.path.splitext(os.path.basename(filename))[0]
-    video_file_path = os.path.join(VIDEO_ROOT, filename)
-    input_file_path = os.path.join(video_file_path)
-    out_root_player = os.path.join('video', 'hls', file, file+'.m3u8')
-    # Создаем директорию для хранения HLS-потока
-    os.makedirs(os.path.join('video', 'hls', file), exist_ok=True)
-
-    # Запускаем ffmpeg для создания HLS-потока
-    cmd = [
-        'ffmpeg',
-        '-i', input_file_path,
-        '-c:v', 'libx264',
-        '-c:a', 'aac',
-        '-strict', 'experimental',
-        '-f', 'hls',
-        '-hls_time', '5',
-        '-hls_list_size', '0',
-        '-start_number', '1',
-        out_root_player
-    ]
-
-    subprocess.run(cmd, shell=True)
-
+    video_cut.delay(filename)
     response = JsonResponse({'status': 'ok'})
     return response
 
