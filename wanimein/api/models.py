@@ -151,3 +151,15 @@ class Collection(TimestampedModel):
 
 class Types(TimestampedModel):
     name = models.CharField(db_index=True)
+
+
+class Tag(TimestampedModel):
+    name = models.CharField(db_index=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Movie_Tags(TimestampedModel):
+    tags = models.ForeignKey(Tag, on_delete=models.RESTRICT)
+    movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)

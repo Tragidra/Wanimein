@@ -26,3 +26,11 @@ export function apiGetMovActors(param){
 		params: param,
 	})
 }
+
+export function apiGetMovTags(param){
+	return httpRequest({
+		url: '/movie_tags',
+		method: 'get',
+		params: param,
+	})
+}

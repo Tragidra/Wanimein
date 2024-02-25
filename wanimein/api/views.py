@@ -13,11 +13,11 @@ from rest_framework.response import Response
 
 from wanimein import settings
 from wanimein.api.models import Movie_Info, Genre, Country, Comment, Movie_Genre, Movie_Details, Movie_Actors, \
-    Collection, Actors, Year, Episode, Types, User
+    Collection, Actors, Year, Episode, Types, User, Tag, Movie_Tags
 from wanimein.api.serializers import Movie_InfoSerializer, Movie_DetailsSerializer, Movie_ActorsSerializer, \
     Movie_GenreSerializer, GenreSerializer, CommentSerializer, CountrySerializer, CollectionSerializer, \
     EpisodeSerializer, ActorsSerializer, YearSerializer, TypesSerializer, \
-    UserSerializer
+    UserSerializer, TagSerializer, Movie_TagsSerializer
 
 VIDEO_ROOT = r"C:\Users\Krulzifer\PycharmProjects\wanimein\wanimein\api\source"
 
@@ -152,7 +152,13 @@ class Movie_DetailsView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.R
 
     def get_queryset(self):
         mov_id = self.request.query_params.get('vod_id', None)
-        queryset = self.queryset.filter(id=mov_id)
+        request_type = self.request.query_params.get('type', None)
+        if request_type is not None and request_type == 'news':
+            queryset = self.queryset.order_by('updated_at')[:5]
+        elif request_type is not None and request_type == 'hot':
+            queryset = self.queryset.order_by('id')[:6]
+        else:
+            queryset = self.queryset.filter(id=mov_id)
 
         return queryset
 
@@ -447,50 +453,51 @@ class UserView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Update
         return self.list(request, *args, **kwargs)
 
 
-def stream(request):
-    name = request.GET['name']
-    video_path = os.path.join(VIDEO_ROOT, name)
+class TagView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+              viewsets.GenericViewSet, mixins.DestroyModelMixin):
+    lookup_field = 'name'
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
 
-    # Проверяем, существует ли файл
-    if not os.path.exists(video_path):
-        return HttpResponseNotFound("Файл не найден")
+    def get_queryset(self):
+        queryset = self.queryset.order_by('id')
 
-    # Определяем MIME-тип файла
-    mime_type, _ = mimetypes.guess_type(video_path)
-    response = StreamingHttpResponse(content_type=mime_type)
+        return queryset
 
-    video_path = pathlib.PureWindowsPath(video_path).as_posix()
-    # Функция для потоковой передачи данных
-    def stream_video():
-        cmd = [
-            'ffmpeg',
-            '-i', video_path,
-            '-f', 'webm',  # или другой формат, поддерживаемый браузерами
-            '-c:v', 'libvpx',
-            '-b:v', '1M',
-            '-c:a', 'libvorbis',
-            '-b:a', '128k',
-            '-vf', 'scale=640:-1',  # измените разрешение, если нужно
-            '-f', 'webm',
-            '-'
-        ]
+    def list(self, request):
+        serializer_context = {'request': request}
+        page = self.paginate_queryset(self.get_queryset())
 
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        serializer = self.serializer_class(
+            page,
+            context=serializer_context,
+            many=True
+        )
+        return self.get_paginated_response(serializer.data)
 
-        try:
-            while True:
-                data = process.stdout.read(1024)
-                if not data:
-                    break
-                yield data
-        except GeneratorExit:
-            # Завершаем процесс, если поток закрыт
-            process.terminate()
+    def new(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
-    response['Content-Disposition'] = f'inline; filename="{name}"'
-    response['Cache-Control'] = 'no-cache'
-    response['Accept-Ranges'] = 'bytes'
-    response['Content-Length'] = os.path.getsize(video_path)
-    response.streaming_content = stream_video()
 
-    return response
+class Movie_TagsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                     viewsets.GenericViewSet, mixins.DestroyModelMixin, mixins.ListModelMixin):
+    lookup_field = 'id'
+    serializer_class = Movie_TagsSerializer
+    pagination_class = None
+    queryset = Movie_Tags.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
+        ids = self.request.query_params.get('ids', None)
+        if ids is not None:
+            ids = ids.split('=')[1]
+            ids = [int(id) for id in ids.split(',')]
+            queryset = self.queryset.filter(movie_details__in=ids)
+
+        return queryset
+
+    def getting(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def new(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)

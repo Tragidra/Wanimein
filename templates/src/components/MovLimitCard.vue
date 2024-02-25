@@ -47,7 +47,6 @@
 <script>
 // 有限展示视频卡片列表
 import apiGetMovList from '../apis/getMovInfo'
-import SakuraBigImg from './SakuraBigImg.vue'
 // import SakuraTypeButton from './SakuraTypeButton.vue'
 import { useStore } from 'vuex'
 
@@ -57,7 +56,6 @@ export default {
         movtype: Number
     },
     components: {
-      SakuraBigImg,
     },
 
     setup() {

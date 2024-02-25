@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from wanimein.api.models import (Genre, Country, Movie_Genre, Movie_Details, Movie_Info, Movie_Actors,
-                                 Comment, Actors, Year, User, Episode, Collection, Types)
+                                 Comment, Actors, Year, User, Episode, Collection, Types, Tag, Movie_Tags)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -221,7 +221,8 @@ class CommentSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=User.objects.all())
     author_name = serializers.StringRelatedField(source='author', read_only=True)
     respondent = serializers.IntegerField(allow_null=True)
-    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                       queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -346,6 +347,8 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['episodes'] = (Episode.objects.filter(movie_details=representation['id'])
                                       .values('id', 'name', 'url').order_by('id'))
+        # representation['tags'] = (Movie_Tags.objects.filter(movie_details=representation['id'])
+        #                           .values('id', 'tags').order_by('id'))
 
         return representation
 
@@ -359,7 +362,8 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
 class Movie_ActorsSerializer(serializers.ModelSerializer):
     actor = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Actors.objects.all())
     actor_name = serializers.StringRelatedField(source='actor', read_only=True)
-    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                       queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -395,7 +399,8 @@ class Movie_ActorsSerializer(serializers.ModelSerializer):
 class EpisodeSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     url = serializers.CharField()
-    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                       queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -429,7 +434,8 @@ class EpisodeSerializer(serializers.ModelSerializer):
 
 class CollectionSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=User.objects.all())
-    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Movie_Details.objects.all())
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                       queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
 
@@ -479,6 +485,78 @@ class TypesSerializer(serializers.ModelSerializer):
         return Types.objects.create(
             **validated_data
         )
+
+    def get_created_at(self, instance):
+        return instance.created_at.isoformat()
+
+    def get_updated_at(self, instance):
+        return instance.updated_at.isoformat()
+
+
+class TagSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+    createdAt = serializers.SerializerMethodField(method_name='get_created_at')
+    updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
+
+    class Meta:
+        model = Tag
+        fields = (
+            'id',
+            'name',
+            'createdAt',
+            'updatedAt',
+        )
+
+    def create(self, validated_data):
+        return Tag.objects.create(
+            **validated_data
+        )
+
+    def get_created_at(self, instance):
+        return instance.created_at.isoformat()
+
+    def get_updated_at(self, instance):
+        return instance.updated_at.isoformat()
+
+
+class Movie_TagsSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Tag.objects.all())
+    tags_name = serializers.StringRelatedField(source='tags', read_only=True)
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                       queryset=Movie_Details.objects.all())
+    createdAt = serializers.SerializerMethodField(method_name='get_created_at')
+    updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
+
+    class Meta:
+        model = Movie_Tags
+        fields = (
+            'id',
+            'tags',
+            'tags_name',
+            'movie_details',
+            'createdAt',
+            'updatedAt',
+        )
+
+    def create(self, validated_data):
+        return Movie_Tags.objects.create(
+            **validated_data
+        )
+
+    def update(self, instance, validated_data):
+        # instance.genre = validated_data.get('genre', instance.genre)
+        # instance.movie_info = validated_data.get('movie_info', instance.movie_info)
+        # instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
+
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     representation['episodes'] = (Episode.objects.filter(movie_details=representation['id'])
+    #                                   .values('id', 'name', 'url').order_by('id'))
+    #     # representation['tags'] = (Movie_Tags.objects.filter(movie_details=representation['id'])
+    #     #                           .values('id', 'tags').order_by('id'))
+    #
+    #     return representation
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()

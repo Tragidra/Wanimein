@@ -55,7 +55,6 @@
 <script>
 import { ref } from 'vue'
 import apiGetMovList, {apiGetCountry, apiGetGenres, apiGetYears} from '../apis/getMovInfo'
-import SakuraBigImg from './SakuraBigImg.vue'
 // import SakuraTypeButton from './SakuraTypeButton.vue'
 import { useStore } from 'vuex'
 
@@ -67,7 +66,6 @@ export default {
         keyword: String
     },
     components: {
-      SakuraBigImg,
     },
 
     setup() {

@@ -60,5 +60,12 @@ urlpatterns = [
         'put': 'new'
     })),
     path('auth', views.UserView.as_view(), name='user'),
-    path('video', views.stream, name='video')
+    path('tag', views.TagView.as_view({
+        'get': 'list',
+        'put': 'new'
+    }), name='tag'),
+    path('movie_tags', views.Movie_TagsView.as_view({
+        'get': 'getting',
+        'put': 'new'
+    }), name='movie_tag'),
 ]
