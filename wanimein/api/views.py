@@ -6,6 +6,7 @@ from itertools import chain
 
 import jwt
 from django.contrib.auth.hashers import check_password, make_password
+from django.core.cache import cache
 from django.http import HttpResponseNotFound, StreamingHttpResponse
 from rest_framework import mixins, viewsets, generics
 from rest_framework.generics import get_object_or_404
@@ -52,6 +53,8 @@ class MovieView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Updat
         return queryset
 
     def list(self, request):
+        cache.set('stats', '1')
+        print(cache.get('stats'))
         serializer_context = {'request': request}
         page = self.paginate_queryset(self.get_queryset())
         serializer = self.serializer_class(
