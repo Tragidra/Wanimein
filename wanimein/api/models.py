@@ -110,6 +110,7 @@ class Movie_Details(TimestampedModel):
     director = models.CharField(db_index=True)
     last_episode = models.DateTimeField()
     synopsis = models.TextField()
+    views = models.IntegerField(default=0, db_index=True)
 
     year = models.ForeignKey(Year, on_delete=models.RESTRICT, related_name='year', default=1)
     country = models.ForeignKey(Country, on_delete=models.RESTRICT, related_name='country', default=1)

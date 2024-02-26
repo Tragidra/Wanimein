@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from wanimein.api.models import (Genre, Country, Movie_Genre, Movie_Details, Movie_Info, Movie_Actors,
@@ -135,6 +136,12 @@ class Movie_InfoSerializer(serializers.ModelSerializer):
         instance.year = validated_data.get('year', instance.year)
         instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
         return instance
+
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     representation['views'] = cache.get(representation['name'] + '.views')
+    #
+    #     return representation
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
@@ -301,10 +308,12 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
     director = serializers.CharField()
     last_episode = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     synopsis = serializers.CharField()
+    views = serializers.IntegerField()
     country = serializers.StringRelatedField(many=False)
     year = serializers.StringRelatedField(many=False)
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
     updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
+    type = serializers.CharField()
 
     class Meta:
         model = Movie_Details
@@ -317,11 +326,13 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
             'current_episodes',
             'director',
             'last_episode',
+            'views',
             'synopsis',
             'country',
             'year',
             'createdAt',
             'updatedAt',
+            'type',
         )
 
     def create(self, validated_data):
@@ -337,6 +348,7 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
         instance.current_episodes = validated_data.get('current_episodes', instance.current_episodes)
         instance.director = validated_data.get('director', instance.director)
         instance.last_episode = validated_data.get('last_episode', instance.last_episode)
+        instance.views = validated_data.get('views', instance.views)
         instance.synopsis = validated_data.get('synopsis', instance.synopsis)
         instance.country = validated_data.get('country', instance.country)
         instance.year = validated_data.get('year', instance.year)
@@ -349,6 +361,15 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
                                       .values('id', 'name', 'url').order_by('id'))
         # representation['tags'] = (Movie_Tags.objects.filter(movie_details=representation['id'])
         #                           .values('id', 'tags').order_by('id'))
+        # Подсчёт для статистики изменения просмотров за день
+
+        if representation['type'] != 'default':
+            pass
+        else:
+            views = int(cache.get(representation['name'] + '.views')) + 1
+            representation['change_views'] = round(((views - representation['views']) * 100 // views), 2)
+            cache.set(representation['name'] + '.views', views)
+            representation['views'] = cache.get(representation['name'] + '.views')
 
         return representation
 

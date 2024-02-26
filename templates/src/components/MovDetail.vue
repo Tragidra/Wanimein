@@ -5,6 +5,36 @@
                 <div class="vod-detail">
                     <img :src="movie_detail.picture" alt=""/>
                 </div>
+
+                <div class="statistic-card">
+        <el-statistic :value="98500">
+          <template #title>
+            <div style="display: inline-flex; align-items: center">
+              <h2>Количество просмотров</h2>
+              <el-tooltip
+                effect="dark"
+                content="Количество человек, посмотревших это произведение на нашей платформе"
+                placement="top"
+              >
+                <el-icon style="margin-left: 4px" :size="12">
+                  <Warning />
+                </el-icon>
+              </el-tooltip>
+            </div>
+          </template>
+        </el-statistic>
+        <div class="statistic-footer">
+          <div class="footer-item">
+            <span>За сегодня </span>
+            <span class="green">
+              {{ movie_detail.change_views }}%
+              <el-icon>
+                <CaretTop />
+              </el-icon>
+            </span>
+          </div>
+        </div>
+      </div>
                 
             </el-col>
             <el-col  :sm="18" style="padding: 0 10px">
