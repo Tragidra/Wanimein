@@ -43,9 +43,9 @@ export default {
 }
 
 span.tab-label {
-  font-size: 15px; 
+  font-size: 15px;
   font-weight: bold;
-  color: #606266; 
+  color: #606266;
 }
 </style>
 

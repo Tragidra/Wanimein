@@ -11,6 +11,6 @@ def populate_cache(sender, connection, **kwargs):
     if not hasattr(populate_cache, '_has_run'):
         views = Movie_Details.objects.values('name', 'views').order_by('id')
         for i in range(len(views)):
-            cache.set(views[i]['name'] + '.views', views[i]['views'])
+            cache.set(views[i]['name'] + '.views', views[i]['views'], timeout=None)
 
         setattr(populate_cache, '_has_run', True)

@@ -34,3 +34,11 @@ export function apiGetMovTags(param){
 		params: param,
 	})
 }
+
+export function apiGetUserRating(data){
+		return httpRequest({
+		url: '/movie_ratings',
+		method: 'put',
+		data: data,
+	})
+}

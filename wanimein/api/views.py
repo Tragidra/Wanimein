@@ -1,25 +1,19 @@
-import mimetypes
-import os
-import pathlib
-import subprocess
-from itertools import chain
-
 import jwt
-from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import check_password
 from django.core.cache import cache
-from django.db.models import CharField, Value
-from django.http import HttpResponseNotFound, StreamingHttpResponse
+from django.db.models import Value
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import mixins, viewsets, generics
 from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
 
 from wanimein import settings
 from wanimein.api.models import Movie_Info, Genre, Country, Comment, Movie_Genre, Movie_Details, Movie_Actors, \
-    Collection, Actors, Year, Episode, Types, User, Tag, Movie_Tags
+    Collection, Actors, Year, Episode, Types, User, Tag, Movie_Tags, Movie_Ratings
 from wanimein.api.serializers import Movie_InfoSerializer, Movie_DetailsSerializer, Movie_ActorsSerializer, \
     Movie_GenreSerializer, GenreSerializer, CommentSerializer, CountrySerializer, CollectionSerializer, \
     EpisodeSerializer, ActorsSerializer, YearSerializer, TypesSerializer, \
-    UserSerializer, TagSerializer, Movie_TagsSerializer
+    UserSerializer, TagSerializer, Movie_TagsSerializer, Movie_RatingsSerializer
 
 VIDEO_ROOT = r"C:\Users\Krulzifer\PycharmProjects\wanimein\wanimein\api\source"
 
@@ -501,6 +495,41 @@ class Movie_TagsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.
         return queryset
 
     def getting(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def new(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+@csrf_exempt
+def save_views(request):
+    if request.method == "POST":
+        movie_details = Movie_Details.objects.all()
+        for movie_detail in movie_details:
+            movie_detail.views = cache.get(movie_detail.name + '.views')
+            movie_detail.save()
+        return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'Доступ запрещён'})
+
+
+class Movie_RatingsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                     viewsets.GenericViewSet, mixins.DestroyModelMixin, mixins.ListModelMixin):
+    lookup_field = 'id'
+    serializer_class = Movie_RatingsSerializer
+    pagination_class = None
+    queryset = Movie_Ratings.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
+        ids = self.request.query_params.get('ids', None)
+        if ids is not None:
+            ids = ids.split('=')[1]
+            ids = [int(id) for id in ids.split(',')]
+            queryset = self.queryset.filter(movie_details__in=ids)
+
+        return queryset
+
+    def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def new(self, request, *args, **kwargs):

@@ -6,36 +6,63 @@
                     <img :src="movie_detail.picture" alt=""/>
                 </div>
 
-                <div class="statistic-card">
-        <el-statistic :value="98500">
-          <template #title>
-            <div style="display: inline-flex; align-items: center">
-              <h2>Количество просмотров</h2>
-              <el-tooltip
-                effect="dark"
-                content="Количество человек, посмотревших это произведение на нашей платформе"
-                placement="top"
-              >
-                <el-icon style="margin-left: 4px" :size="12">
-                  <Warning />
-                </el-icon>
-              </el-tooltip>
+            <div class="statistic-card">
+                <el-statistic :value="movie_detail.views">
+                  <template #title>
+                    <div style="display: inline-flex; align-items: center">
+                      <h2 style="display: inline-flex; align-items: center"> Количество просмотров</h2>
+                      <el-tooltip style="display: inline-flex; align-items: center"
+                        effect="dark"
+                        content="Количество человек, посмотревших это произведение на нашей платформе"
+                      >
+                        <el-icon style="margin-left: 4px" :size="12">
+                          <Warning />
+                        </el-icon>
+                      </el-tooltip>
+                    </div>
+                  </template>
+                </el-statistic >
+                <div class="statistic-footer">
+                  <div class="footer-item">
+                    <span>За сегодня </span>
+                    <span class="green">
+                      {{ movie_detail.change_views }}%
+                      <el-icon>
+                        <CaretTop />
+                      </el-icon>
+                    </span>
+                  </div>
+                </div>
             </div>
-          </template>
-        </el-statistic>
-        <div class="statistic-footer">
-          <div class="footer-item">
-            <span>За сегодня </span>
-            <span class="green">
-              {{ movie_detail.change_views }}%
-              <el-icon>
-                <CaretTop />
-              </el-icon>
-            </span>
-          </div>
-        </div>
-      </div>
-                
+            <div class="rating-container">
+              <div class="rating-group">
+                <h4 >Рейтинг пользователей</h4>
+                <el-rate
+                  v-model="movie_detail.user_rating"
+                  size="large"
+                  :icons="icons"
+                  :void-icon="Film"
+                  @change="setUserScore"
+                  :colors="['#93c4ff', '#ea5959', '#ffd93c']"
+                  show-score
+                  text-color="#ff9900"
+                  score-template="{value}"
+                />
+              </div>
+              <div class="rating-group">
+                <h4>Умный рейтинг системы</h4>
+                <el-rate
+                  v-model="movie_detail.system_rating"
+                  size="large"
+                  :void-icon="Plus"
+                  :colors="['#ffb13c']"
+                  show-score
+                  text-color="#ffb13c"
+                  score-template="{value}"
+                  disabled
+                />
+              </div>
+            </div>
             </el-col>
             <el-col  :sm="18" style="padding: 0 10px">
                 <el-row style="margin: 0 0 15px 0">
@@ -160,12 +187,13 @@
 
 <script>
 // 视频详情
-import apiGetMovDetail, {apiGetMovActors, apiGetMovGenres} from '../apis/getMovDetail'
+import apiGetMovDetail, {apiGetMovActors, apiGetMovGenres, apiGetUserRating} from '../apis/getMovDetail'
 import myVideoPlay from './VideoPlay.vue'
 import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
+import { Film, Plus } from '@element-plus/icons-vue'
 import {mapGetters, useStore} from 'vuex'
 import { isCollectVideo, addCollectVideo, removeCollectVideo } from '../apis/videoCollection'
+import {ref} from "vue";
 
 export default {
   name: 'MovDetail',
@@ -173,7 +201,7 @@ export default {
   setup() {
     const store = useStore()
     return {
-        store
+        store,
     }
   },
 
@@ -186,13 +214,15 @@ export default {
     },
   data() {
     return {
+        icons: [Film, Film, Film],
+        icons2: [Plus],
         movie_detail: {},
         movie_genres: {},
         movie_actors: {},
         video_play: false,
-        video_play_url: '',  // 此时正在播放的 视频url
+        video_play_url: '',
         activeName: '',
-        isCollect: 0  // 此视频是否被收藏
+        isCollect: 0,
     }
   },
 
@@ -219,7 +249,6 @@ export default {
     },
 
     addCollect() {
-        // 将此视频添加收藏
         console.log("add collect")
         if (this.store.state.appStore.isLogining) {
           const data = {
@@ -294,7 +323,6 @@ export default {
     },
 
     videoPlay(v) {
-        // 点击按钮时修改 视频播放的链接
         var play_url = v.url
         console.log(v)
         console.log('Вот что просили')
@@ -312,7 +340,6 @@ export default {
     },
 
     checkHtml(s) {
-        // 判断它是否是html
         if (typeof(s) == 'string') {
             if (s.indexOf('<p>')>-1) {
                 return true
@@ -324,11 +351,27 @@ export default {
         } else {
             return false
         }
+    },
+
+    setUserScore(value) {
+      const param = {
+        user: this.store.state.appStore.user.id,
+        movie_details: this.movie_detail.id,
+        movie_info: this.movie_detail.id,
+        score: value,
+      };
+      apiGetUserRating(param).then(
+                  (res) => {
+                    this.rating_value = value;
+                    ElMessage({
+                    message: 'Благодарим за оценку!',
+                    type: 'success',
+                    })
+                  })
     }
   },
 
   watch: {
-      // user出现变化后 请求数据 查看是视频是否被收藏
     moniterUser() {
         return this.store.state.appStore.user.id
     }
@@ -336,9 +379,15 @@ export default {
 
     //На случай если пользователь поменяется на странице
   computed: {
+      Film() {
+        return Film
+      },
+      Plus() {
+        return Plus
+      },
       moniterUser() {
         this.showIsCollect()
-      }
+      },
   },
 
 
@@ -405,4 +454,13 @@ p.des-content {
     margin: 0;
     padding: 0;
 } */
+
+.rating-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.rating-group {
+    margin-bottom: 1px; /* Или любое другое значение, чтобы установить расстояние между группами */
+}
 </style>

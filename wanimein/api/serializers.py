@@ -1,8 +1,10 @@
 from django.core.cache import cache
+from django.db.models import Avg, Sum
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from wanimein.api.models import (Genre, Country, Movie_Genre, Movie_Details, Movie_Info, Movie_Actors,
-                                 Comment, Actors, Year, User, Episode, Collection, Types, Tag, Movie_Tags)
+                                 Comment, Actors, Year, User, Episode, Collection, Types, Tag, Movie_Tags,
+                                 Movie_Ratings)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -355,20 +357,30 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
         instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
         return instance
 
-    def to_representation(self, instance):
+    def to_representation(self, instance):  # Подсчёт эпизодов и два паралелльных рейтинга
         representation = super().to_representation(instance)
         representation['episodes'] = (Episode.objects.filter(movie_details=representation['id'])
                                       .values('id', 'name', 'url').order_by('id'))
         # representation['tags'] = (Movie_Tags.objects.filter(movie_details=representation['id'])
         #                           .values('id', 'tags').order_by('id'))
         # Подсчёт для статистики изменения просмотров за день
-
+        representation['user_rating'] = (Movie_Ratings.objects.filter(movie_details=representation['id'],
+                                                                     movie_info=representation['id'])
+                                         .aggregate(rating=Avg('score'))['rating'])
+        system_rating = round((representation['views'] * 100)//(Movie_Details.objects.values('views')
+                                         .aggregate(all_views=Sum('views'))['all_views']), 2)
+        if system_rating < 50:
+            system_rating = 50 + system_rating
+        elif system_rating >= 50:
+            system_rating = 90 + system_rating * 0.1
+        representation['system_rating'] = 5 * system_rating / 100
+        print(representation['system_rating'])
         if representation['type'] != 'default':
             pass
         else:
             views = int(cache.get(representation['name'] + '.views')) + 1
             representation['change_views'] = round(((views - representation['views']) * 100 // views), 2)
-            cache.set(representation['name'] + '.views', views)
+            cache.set(representation['name'] + '.views', views, timeout=None)
             representation['views'] = cache.get(representation['name'] + '.views')
 
         return representation
@@ -578,6 +590,62 @@ class Movie_TagsSerializer(serializers.ModelSerializer):
     #     #                           .values('id', 'tags').order_by('id'))
     #
     #     return representation
+
+    def get_created_at(self, instance):
+        return instance.created_at.isoformat()
+
+    def get_updated_at(self, instance):
+        return instance.updated_at.isoformat()
+
+
+class Movie_RatingsSerializer(serializers.ModelSerializer):
+    movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                       queryset=Movie_Details.objects.all())
+    movie_info = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                    queryset=Movie_Info.objects.all())
+    user = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                              queryset=User.objects.all())
+    score = serializers.IntegerField()
+    createdAt = serializers.SerializerMethodField(method_name='get_created_at')
+    updatedAt = serializers.SerializerMethodField(method_name='get_updated_at')
+
+    class Meta:
+        model = Movie_Ratings
+        fields = (
+            'id',
+            'movie_details',
+            'movie_info',
+            'user',
+            'score',
+            'createdAt',
+            'updatedAt',
+        )
+
+    def create(self, validated_data):
+        movie_details = validated_data['movie_details']
+        movie_info = validated_data['movie_info']
+        user = validated_data['user']
+        score = validated_data['score']
+
+        # Проверяем, существует ли запись с такими же значениями
+        existing_rating = Movie_Ratings.objects.filter(
+            movie_details=movie_details,
+            movie_info=movie_info,
+            user=user,
+        ).first()
+
+        if existing_rating:
+            Movie_Ratings.objects.get(id=existing_rating.id).delete()
+
+        return Movie_Ratings.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.user = validated_data.get('user', instance.user)
+        instance.movie_info = validated_data.get('movie_info', instance.movie_info)
+        instance.movie_details = validated_data.get('movie_details', instance.movie_details)
+        instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
+        return instance
+
 
     def get_created_at(self, instance):
         return instance.created_at.isoformat()

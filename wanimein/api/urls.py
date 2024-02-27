@@ -68,4 +68,9 @@ urlpatterns = [
         'get': 'getting',
         'put': 'new'
     }), name='movie_tag'),
+    path('movie_ratings', views.Movie_RatingsView.as_view({
+        'get': 'get',
+        'put': 'new'
+    }), name='movie_tag'),
+    path('save_views', views.save_views, name='save_views')
 ]

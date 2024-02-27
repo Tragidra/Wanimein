@@ -164,3 +164,10 @@ class Tag(TimestampedModel):
 class Movie_Tags(TimestampedModel):
     tags = models.ForeignKey(Tag, on_delete=models.RESTRICT)
     movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
+
+
+class Movie_Ratings(TimestampedModel):
+    movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
+    movie_info = models.ForeignKey(Movie_Info, on_delete=models.RESTRICT)
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    score = models.IntegerField(default=None, db_index=True)
