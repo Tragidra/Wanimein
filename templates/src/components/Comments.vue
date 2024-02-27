@@ -18,8 +18,13 @@
 
     <div v-for="(comment, i) in comments" :key="i" class="comment">
         <el-divider />
-        <!-- 评论人信息 -->
         <el-row class="comment-username" :id="comment.id">
+          <el-avatar v-if="this.store.state.appStore.isLogining"
+            src="https://e7.pngegg.com/pngimages/120/500/png-clipart-european-rabbit-cuteness-icon-cartoon-rabbit-cartoon-character-animals.png"
+          />
+          <el-avatar v-else
+            src="https://e7.pngegg.com/pngimages/575/117/png-clipart-rabbit-drawing-rabbit-white-face-thumbnail.png"
+          />
             {{ comment.author_name }} &nbsp;&nbsp; {{comment.createdAt }}
             <el-button link style="position:absolute; right: 10%" @click="showReplyForm">Ответить</el-button>
         </el-row>
@@ -78,7 +83,7 @@ export default {
             })
 
         const replyComment = reactive({
-                text: '',
+                body: '',
                 user: ''
             })
 
@@ -160,13 +165,14 @@ export default {
         replyCommentPost(e) {
             
             if (this.store.state.appStore.isLogining) {
-                // 登录状态回复评论
+                // loginStatusToReplyToComments
                 var comment_id = e.currentTarget.parentElement.parentElement.parentElement.parentElement.id.split('-')[1];
                 this.replyComment.user_id = this.store.state.appStore.user.id;
                 var params = {
                   respondent: comment_id,
-                  user: this.replyComment.user,
-                  text: this.replyComment.text,
+                  author: this.replyComment.user_id,
+                  text: this.replyComment.body,
+                  movie_details: this.vod_id
                 };
                 replyComment(params).then(
                     res => {

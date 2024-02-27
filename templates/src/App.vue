@@ -3,7 +3,7 @@
     <el-container >
       <el-header style="width: 100%; position: sticky; border-bottom: 1px solid #dcdfe6; top: 0; left: 0; z-index:1000; padding: 0">
       <div class="sakura-header">
-        <SakuraMenu/>
+        <HeaderMenu/>
       </div>
       </el-header>
       <el-main style="overflow: hidden; top: 0; left: 0; padding: 0;">
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import SakuraMenu from './components/SakuraMenu.vue'
+import HeaderMenu from './components/HeaderMenu.vue'
 import MovieCardList from './components/MovieCardList.vue'
 import FooterVue from './components/Footer.vue'
 import MovDetailPageVue from './views/MovDetailPage.vue'
@@ -37,7 +37,7 @@ import LoginVue from './views/Login.vue'
 export default {
   name: 'App',
   components: {
-    SakuraMenu,
+    HeaderMenu,
     MovieCardList,
     FooterVue,
     MovDetailPageVue,

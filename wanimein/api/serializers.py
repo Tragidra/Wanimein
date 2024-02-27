@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.cache import cache
 from django.db.models import Avg, Sum
 from rest_framework import serializers
@@ -260,6 +262,11 @@ class CommentSerializer(serializers.ModelSerializer):
         instance.updatedAt = validated_data.get('updatedAt', instance.updatedAt)
         return instance
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['createdAt'] = datetime.strptime(representation['createdAt'], '%Y-%m-%dT%H:%M:%S.%f').strftime('%d/%m/%Y %H:%M')
+        return representation
+
     def get_created_at(self, instance):
         return instance.created_at.isoformat()
 
@@ -374,7 +381,6 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
         elif system_rating >= 50:
             system_rating = 90 + system_rating * 0.1
         representation['system_rating'] = 5 * system_rating / 100
-        print(representation['system_rating'])
         if representation['type'] != 'default':
             pass
         else:

@@ -3,7 +3,7 @@
     <div class="login-container">
       <div class="head">
         <div class="name">
-          <div class="title">Animein</div>
+          <div class="title">Wanimein</div>
           <div class="tips">Все онгоинги в одном месте</div>
         </div>
       </div>

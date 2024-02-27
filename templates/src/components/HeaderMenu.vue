@@ -7,10 +7,10 @@
     :router="true"
     class="el-menu-demo"
     mode="horizontal"
-    :ellipsis="true"
+    :ellipsis="false"
     @select="handleSelect"
   >
-    <el-menu-item index="/" style="font-size:larger; color:#409EFF; ">Animein</el-menu-item>
+    <el-menu-item index="/" style="font-size:larger; color:#409EFF; ">Wanimein</el-menu-item>
     <el-menu-item index="/movtype/1">Аниме</el-menu-item>
     <el-menu-item index="/movtype/2">Фильмы</el-menu-item>
     <el-menu-item index="/movtype/3">Сериалы</el-menu-item>
@@ -25,30 +25,40 @@
         :suffix-icon="Search"
       />
     </div>
-    <div style="position: absolute; right: 0px;">
-        <el-dropdown class="login-out" style="margin: 15px 11px" v-if="isLogining"  trigger="click">
-          <span class="el-dropdown-link">
-            {{ user.login }}
-            <el-icon class="el-icon--right"><arrow-down /></el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item>
+    <div class="user-info-container" style = "width: 60%; margin-left: 3%">
+      <div class="flex-grow"></div> <!-- Расширяющийся элемент, чтобы выравнивать элементы по краям -->
+      <div class="avatar-profile-container">
+        <div class="avatar-container">
+          <el-avatar v-if="isLogining"
+            src="https://e7.pngegg.com/pngimages/120/500/png-clipart-european-rabbit-cuteness-icon-cartoon-rabbit-cartoon-character-animals.png"
+          />
+          <el-avatar v-else
+            src="https://e7.pngegg.com/pngimages/575/117/png-clipart-rabbit-drawing-rabbit-white-face-thumbnail.png"
+          />
+        </div>
+        <div class="username-container">
+          <el-dropdown class="login-out" style="margin: 15px 11px" v-if="isLogining"  trigger="click">
+            <span class="el-dropdown-link">
+              {{ user.login }}
+              <el-icon class="el-icon--right"><arrow-down /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>
                   <router-link :to="'/personSapce/'+ user.id" style="text-decoration: none; color: #606266">Профиль</router-link>
-              </el-dropdown-item>
-
-
-              <el-dropdown-item @click="loginOut">
+                </el-dropdown-item>
+                <el-dropdown-item @click="loginOut">
                   Выйти
-		          </el-dropdown-item>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
 
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-
-        <el-button link type="primary" class="login" style="margin: 15px 11px; color: black" v-else @click="login">
+          <el-button link type="primary" class="login" style="margin: 15px 11px; color: black" v-else @click="login">
             Войти
-        </el-button>
+          </el-button>
+        </div>
+      </div>
     </div>
   </el-menu>
 </template>
@@ -65,7 +75,7 @@ import { ElMessage } from 'element-plus'
 
 
 export default {
-    name: "SakuraMenu",
+    name: "HeaderMenu",
     setup() {
         const store = useStore()
         const router = useRouter()
@@ -196,11 +206,32 @@ export default {
 </script>
 
 <style>
+.user-info-container {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .flex-grow {
   flex-grow: 1;
 }
 
+.avatar-profile-container {
+  display: flex;
+  align-items: center;
+}
 
+.avatar-container {
+  margin-right: 10px;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+.username-container {
+  /* Дополнительные стили для имени пользователя могут быть добавлены здесь */
+  flex-shrink: 0; /* Запрет уменьшения размера блока */
+}
 /* Отмена эффекта перехода */
 .el-menu-item {
   border-bottom: 0 !important;
