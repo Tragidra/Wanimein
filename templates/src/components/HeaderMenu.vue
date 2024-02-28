@@ -87,7 +87,7 @@ export default {
         const isLogining = ref(store.state.appStore.isLogining)
 
         const loginOut = function() {
-          localRemove('token')
+          localRemove('tokenwanimein')
           window.location.reload()
         }
 
@@ -131,7 +131,7 @@ export default {
         getUserInfo() {
           if (this.isLogining) {
             var param = {
-              token: localGet('token')
+              token: localGet('tokenwanimein')
             }
             getUserInfo(param).then(
               (res) => {
@@ -180,7 +180,7 @@ export default {
     created() {
       //Идея со стором не сработала, позже оптимизировать запрос путём кэширования
       if (Object.keys(this.store.state.appStore.user).length === 0){
-        const token = localGet('token');
+        const token = localGet('tokenwanimein');
         if (token !== null){
           this.getUserInfo()
         }

@@ -69,9 +69,8 @@ export default {
             password: state.ruleForm.password,
             ip: window.location.host,
           }).then(res => {
-            console.log(res)
             if (res.results !== null) {
-                localSet('token', res.token)
+                localSet('tokenwanimein', res.token)
                 window.location.href = '/'
             } else {
                 ElMessage({

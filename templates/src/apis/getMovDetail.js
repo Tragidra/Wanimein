@@ -42,3 +42,19 @@ export function apiGetUserRating(data){
 		data: data,
 	})
 }
+
+export function apiSetEpisodeUserView(data){
+	return httpRequest({
+		url: '/episode_view',
+		method: 'put',
+		data: data,
+	})
+}
+
+export function apiGetEpisodeUserView(param){
+	return httpRequest({
+		url: '/episode_view',
+		method: 'get',
+		data: param,
+	})
+}

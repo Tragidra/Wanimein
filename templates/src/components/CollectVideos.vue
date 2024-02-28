@@ -16,7 +16,7 @@
       <el-col v-for="o in movieList" :key="o.id" :xs="8" :sm="4" :md="4" style="padding: 9px;">
         <router-link :to="'/movdetail/'+ o.id" style="text-decoration: none;" target="_blank">
           <div class="badge-wrapper">
-            <el-badge :value="12" class="item">
+            <el-badge :value="o.notifications" class="item">
               <el-card class="box-card" shadow="hover" :body-style="{ padding: '8px 5px' }">
                 <div class="card-div">
                   <img :src="o.picture" class="card-image" />
@@ -46,6 +46,7 @@
 import { ref } from 'vue';
 import { showCollectVideo } from '../apis/videoCollection';
 import { useStore } from 'vuex';
+import {apiGetEpisodeUserView} from "../apis/getMovDetail";
 
 export default {
   name: "CollectVideos",
@@ -71,49 +72,73 @@ export default {
       methods: {
         // 当属性滚动的时候  加载  滚动加载
         loadMore () {
-          this.disabled = true // 将无限滚动给禁用
-          setTimeout(
-            () => {
-              this.page++ // 增加页数
-              this.getCollectMovList() // 请求数据
-            }, 500)  // 间隔500毫秒后发送请求
+          if (this.infiniteMsgShow === true) {
+            setTimeout(
+                () => {
+                  this.page++ // 增加页数
+                  this.getCollectMovList(this.disabled) // 请求数据
+                }, 500)  // 间隔500毫秒后发送请求
+          }
            },
 
-        getCollectMovList() {
-          const param =  {
-              page: this.page,
-              user_id: this.user_id
-              }
+        getCollectMovList(data) {
+         if (data === false) {
+           const param = {
+             page: this.page,
+             user: this.user_id,
+             type: 'collection'
+           }
 
-          // console.log(param)
-          showCollectVideo(param).then(
-            (res) => {
-              // console.log(res)
-              if (res.results !== null) {
-                this.contentShow = true
-                this.infiniteMsgShow = true
-                  for (var i in res.results) {
-                    this.movieList.push(res.results[i])
+           // console.log(param)
+           showCollectVideo(param).then(
+               (res) => {
+                 // console.log(res)
+                 if (res.results !== null) {
+                   this.contentShow = true
+                   this.infiniteMsgShow = true
+                   for (var i in res.results) {
+                     this.movieList.push(res.results[i])
+                   }
+                   if (res.next === null) {
+                     this.disabled = true
+                     this.contentShow = false
+                     this.infiniteMsgShow = false
+                   } else {
+                     this.disabled = false
+                     this.contentShow = true
+                     this.infiniteMsgShow = true
+                   }
+                   this.disabled = false // 还有多余数据时 无限滚动打开
+                 } else {
+                   this.contentShow = false
+                   this.infiniteMsgShow = false
+                   this.disabled = true
+
                  }
-                  this.disabled = false // 还有多余数据时 无限滚动打开
-              } else {
-                this.contentShow = false
-                this.infiniteMsgShow = false
-                this.disabled = true
-
-              }
-             }
-          ).catch(
-            () => {
-                this.contentShow = false
-                this.infiniteMsgShow = false
-                this.disabled = true
-            }
-          )
-      }
+               }
+           ).catch(
+               () => {
+                 this.contentShow = false
+                 this.infiniteMsgShow = false
+                 this.disabled = true
+               }
+           )
+         }
+        },
+        // getUserViews() {
+        //   const param = {
+        //     user: this.user_id
+        //   }
+        //   apiGetEpisodeUserView(param).then(
+        //       (res) => {
+        //
+        //       }
+        //   )
+        // },
    },
   created() {
     this.getCollectMovList();
+    // this.getUserViews();
   },
 };
 </script>

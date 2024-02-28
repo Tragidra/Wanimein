@@ -43,7 +43,7 @@ urlpatterns = [
         'get': 'list',
         'put': 'new'
     })),
-    re_path('episode', views.EpisodeView.as_view({
+    path('episode', views.EpisodeView.as_view({
         'get': 'list',
         'put': 'new'
     })),
@@ -72,5 +72,9 @@ urlpatterns = [
         'get': 'get',
         'put': 'new'
     }), name='movie_tag'),
-    path('save_views', views.save_views, name='save_views')
+    path('save_views', views.save_views, name='save_views'),
+    path('episode_view', views.Episode_ViewView.as_view({
+        'get': 'get',
+        'put': 'new'
+    }), name='episode_view'),
 ]

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { localGet } from '../utils'
 
-const token = localGet('token')
+const token = localGet('tokenwanimein')
 
 // 创建一个 axios 实例
 const service = axios.create({

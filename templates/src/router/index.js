@@ -47,7 +47,7 @@ const router = createRouter({
 
 // 全局路由守卫
 router.beforeEach((to, from, next) => {
-  let token = localStorage.getItem('token')
+  let token = localStorage.getItem('tokenwanimein')
   if (to.meta.needLogin) { // 判断该路由是否需要登录权限
     if (token) { // 判断是否已经登录
       next()

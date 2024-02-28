@@ -9,11 +9,11 @@ from rest_framework.generics import get_object_or_404
 
 from wanimein import settings
 from wanimein.api.models import Movie_Info, Genre, Country, Comment, Movie_Genre, Movie_Details, Movie_Actors, \
-    Collection, Actors, Year, Episode, Types, User, Tag, Movie_Tags, Movie_Ratings
+    Collection, Actors, Year, Episode, Types, User, Tag, Movie_Tags, Movie_Ratings, Episode_View
 from wanimein.api.serializers import Movie_InfoSerializer, Movie_DetailsSerializer, Movie_ActorsSerializer, \
     Movie_GenreSerializer, GenreSerializer, CommentSerializer, CountrySerializer, CollectionSerializer, \
     EpisodeSerializer, ActorsSerializer, YearSerializer, TypesSerializer, \
-    UserSerializer, TagSerializer, Movie_TagsSerializer, Movie_RatingsSerializer
+    UserSerializer, TagSerializer, Movie_TagsSerializer, Movie_RatingsSerializer, Episode_ViewSerializer
 
 VIDEO_ROOT = r"C:\Users\Krulzifer\PycharmProjects\wanimein\wanimein\api\source"
 
@@ -334,7 +334,9 @@ class CollectionView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.
         movie_details = queryset.values('movie_details')
         for i in range(len(movie_details)):
             ids.append(movie_details[i]['movie_details'])
-        page = self.paginate_queryset(Movie_Info.objects.all().filter(id__in=ids))
+        page = self.paginate_queryset(Movie_Info.objects.all().annotate(user=Value(self.request.query_params.get('user', None)))
+                                                                  .filter(id__in=ids))
+        print(page[0].user)
         serializer = Movie_InfoSerializer(
             page,
             context=serializer_context,
@@ -526,6 +528,25 @@ class Movie_RatingsView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixi
             ids = ids.split('=')[1]
             ids = [int(id) for id in ids.split(',')]
             queryset = self.queryset.filter(movie_details__in=ids)
+
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def new(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class Episode_ViewView(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                     viewsets.GenericViewSet, mixins.DestroyModelMixin, mixins.ListModelMixin):
+    lookup_field = 'id'
+    serializer_class = Episode_ViewSerializer
+    pagination_class = None
+    queryset = Episode_View.objects.all()
+
+    def get_queryset(self):
+        queryset = self.queryset
 
         return queryset
 

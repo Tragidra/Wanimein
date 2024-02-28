@@ -163,7 +163,6 @@ export default {
              }
           ).catch(
             () => {
-              console.log(1111)
                 this.contentShow = false;
                 this.infiniteMsgShow = false;
                 this.disabled = true;

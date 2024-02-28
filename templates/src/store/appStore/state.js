@@ -1,5 +1,5 @@
 function haveToken() {
-    const value = window.localStorage.getItem('token')
+    const value = window.localStorage.getItem('tokenwanimein')
     if (value) {
         return true
     } else {

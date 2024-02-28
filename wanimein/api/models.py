@@ -171,3 +171,8 @@ class Movie_Ratings(TimestampedModel):
     movie_info = models.ForeignKey(Movie_Info, on_delete=models.RESTRICT)
     user = models.ForeignKey(User, on_delete=models.RESTRICT)
     score = models.IntegerField(default=None, db_index=True)
+
+
+class Episode_View(TimestampedModel):
+    episode = models.ForeignKey(Episode, on_delete=models.RESTRICT)
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)

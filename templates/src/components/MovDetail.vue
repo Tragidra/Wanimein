@@ -187,7 +187,12 @@
 
 <script>
 // 视频详情
-import apiGetMovDetail, {apiGetMovActors, apiGetMovGenres, apiGetUserRating} from '../apis/getMovDetail'
+import apiGetMovDetail, {
+  apiGetMovActors,
+  apiGetMovGenres,
+  apiGetUserRating,
+  apiSetEpisodeUserView
+} from '../apis/getMovDetail'
 import myVideoPlay from './VideoPlay.vue'
 import { ElMessage } from 'element-plus'
 import { Film, Plus } from '@element-plus/icons-vue'
@@ -324,12 +329,15 @@ export default {
 
     videoPlay(v) {
         var play_url = v.url
-        console.log(v)
         console.log('Вот что просили')
+        console.log(v.id)
         if (play_url) {
             this.video_play = true
             this.video_play_url = play_url
             this.activeName = play_url
+            if (this.store.state.appStore.isLogining) {
+              this.setEpisodeWatchUser(v.id)
+            }
         } else {
             ElMessage({
                 message: 'Не удалось загрузить видео',
@@ -368,6 +376,18 @@ export default {
                     type: 'success',
                     })
                   })
+    },
+
+    setEpisodeWatchUser(id){
+      const data = {
+        episode: id,
+        user: this.store.state.appStore.user.id,
+      };
+      apiSetEpisodeUserView(data).then(
+          (res) => {
+            console.log(res.results)
+          }
+      )
     }
   },
 
