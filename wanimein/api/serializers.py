@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from django.core.cache import cache
-from django.db.models import Avg, Sum, Count
+from django.db.models import Avg, Sum, Count, DateTimeField, Value, F, Func, ExpressionWrapper, CharField
+from django.db.models.functions import Cast
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from wanimein.api.models import (Genre, Country, Movie_Genre, Movie_Details, Movie_Info, Movie_Actors,
@@ -380,8 +381,14 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):  # Подсчёт эпизодов и два паралелльных рейтинга
         representation = super().to_representation(instance)
-        representation['episodes'] = (Episode.objects.filter(movie_details=representation['id'])
-                                      .values('id', 'name', 'url', 'date_release').order_by('id'))
+        episodes = Episode.objects.filter(movie_details=representation['id']).values('id', 'name', 'url', 'date_release').order_by('id')
+
+        for episode in episodes:
+            # Преобразование формата даты
+            if episode['date_release']:
+                episode['date_release'] = episode['date_release'].strftime('%d-%m-%Y %H:%M:%S')
+
+        representation['episodes'] = episodes
         # representation['tags'] = (Movie_Tags.objects.filter(movie_details=representation['id'])
         #                           .values('id', 'tags').order_by('id'))
         # Подсчёт для статистики изменения просмотров за день

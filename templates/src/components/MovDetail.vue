@@ -164,6 +164,7 @@
                 </el-row>
 
                 <el-row>
+                  <el-text tag="b" size="large">График выхода серий:</el-text>&nbsp;
                     <el-table :data="movie_detail.episodes" stripe style="width: 100%">
                       <el-table-column type="index" width="50" />
                       <el-table-column prop="name" label="Название" width="180" />
