@@ -381,7 +381,7 @@ class Movie_DetailsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):  # Подсчёт эпизодов и два паралелльных рейтинга
         representation = super().to_representation(instance)
         representation['episodes'] = (Episode.objects.filter(movie_details=representation['id'])
-                                      .values('id', 'name', 'url').order_by('id'))
+                                      .values('id', 'name', 'url', 'date_release').order_by('id'))
         # representation['tags'] = (Movie_Tags.objects.filter(movie_details=representation['id'])
         #                           .values('id', 'tags').order_by('id'))
         # Подсчёт для статистики изменения просмотров за день
@@ -452,6 +452,7 @@ class Movie_ActorsSerializer(serializers.ModelSerializer):
 class EpisodeSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     url = serializers.CharField()
+    date_release = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     movie_details = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
                                                        queryset=Movie_Details.objects.all())
     createdAt = serializers.SerializerMethodField(method_name='get_created_at')
@@ -463,6 +464,7 @@ class EpisodeSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'url',
+            'date_release',
             'movie_details',
             'createdAt',
             'updatedAt',

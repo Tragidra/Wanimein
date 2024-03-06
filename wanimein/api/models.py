@@ -137,7 +137,8 @@ class Movie_Actors(TimestampedModel):
 
 class Episode(TimestampedModel):
     name = models.CharField(db_index=True)
-    url = models.CharField(default='http:127.0.0.1/video')
+    url = models.CharField(default='http:127.0.0.1/video', null=True)
+    date_release = models.DateTimeField(null=True)
 
     movie_details = models.ForeignKey(Movie_Details, on_delete=models.RESTRICT)
 

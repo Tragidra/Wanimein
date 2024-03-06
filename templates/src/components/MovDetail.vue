@@ -66,25 +66,27 @@
             </el-col>
             <el-col  :sm="18" style="padding: 0 10px">
                 <el-row style="margin: 0 0 15px 0">
-                    <p style="margin: 0; font-size: 18px;">{{ movie_detail.name }}</p>
+                    <el-text tag="b" size="large" style="margin: 0; font-size: 18px;">{{ movie_detail.name }}</el-text>
                 </el-row>
 
                 <el-row v-if="movie_detail.vod_sub">
                     <span class="des-name">
-                        Другое название:&nbsp; &nbsp;
+                        <el-text tag="b" size="large">Другое название:</el-text>
                         <p class="des-content">{{ movie_detail.other_name }}</p>
                     </span>
                     
                 </el-row>
 
                 <el-row>
-                    <span class="des-name">Страна:&nbsp;&nbsp;</span>
+                    <span class="des-name">
+                      <el-text tag="b" size="large">Страна:</el-text>&nbsp;
+                    </span>
                     <p class="des-content"> {{ movie_detail.country }}</p>
                 </el-row>
 
                 <el-row>
                     <span class="des-name">
-                        Язык:&nbsp;&nbsp;
+                      <el-text tag="b" size="large">Язык:</el-text>&nbsp;
                         <p class="des-content"> {{ movie_detail.language }}</p>
                     </span>
                     
@@ -92,7 +94,7 @@
 
                 <el-row>
                     <span class="des-name">
-                        Жанр:&nbsp;&nbsp;
+                        <el-text tag="b" size="large">Жанр:</el-text>&nbsp;
                         <p v-for="mog in movie_genres" class="des-content">{{ mog.genre_name + ' ' }}</p>
                     </span>
                     
@@ -100,7 +102,7 @@
 
                 <el-row>
                     <span class="des-name">
-                        Выпущено:&nbsp;&nbsp;
+                        <el-text tag="b" size="large">Выпущено:</el-text>&nbsp;
                         <p class="des-content"> {{ movie_detail.year }}</p>
                     </span>
                     
@@ -108,7 +110,7 @@
 
                 <el-row>
                     <span class="des-name">
-                        Эпизоды:&nbsp; &nbsp;
+                        <el-text tag="b" size="large">Эпизоды:</el-text>&nbsp;
                         <p class="des-content">{{ movie_detail.current_episodes + ' / ' + movie_detail.all_episodes }}</p>
                     </span>
                     
@@ -116,7 +118,7 @@
 
                 <el-row>
                     <span class="des-name">
-                        Режиссёр:&nbsp;&nbsp;
+                        <el-text tag="b" size="large">Режиссёр:</el-text>&nbsp;
                         <p class="des-content"> {{ movie_detail.director }}</p>
                     </span>
                     
@@ -124,7 +126,7 @@
 
                 <el-row>
                     <span class="des-name">
-                        Последняя серия вышла:&nbsp;&nbsp;
+                        <el-text tag="b" size="large">Последняя серия вышла:</el-text>&nbsp;
                         <p class="des-content"> {{ movie_detail.last_episode }}</p>
                     </span>
                     
@@ -132,7 +134,7 @@
 
                 <el-row>
                     <span class="des-name">
-                        В коллекции:&nbsp;&nbsp;
+                        <el-text tag="b" size="large">В коллекции:</el-text>&nbsp;
                         <p class="des-content"> 
                             <el-icon :size="26" style="vertical-align: middle;" v-if="!isCollect" color="#999" @click="addCollect"><StarFilled /></el-icon>
                             <el-icon :size="26" style="vertical-align: middle" v-else color="yellow" @click="removeCollect"><StarFilled /></el-icon>  
@@ -142,20 +144,31 @@
                 </el-row>
 
                 <el-row>
-                    <span class="des-name">
-                        Главные персонажи:&nbsp;&nbsp;
-                        <p v-for="mog in movie_actors" class="des-content">{{ mog.actor_name + ' ' }}</p>
+                    <span class="flex">
+                        <el-text tag="b" size="large">Главные персонажи:</el-text>&nbsp;
+                        <el-tag style="margin-right: 1px;"
+                                class="mb-2" v-for="mog in movie_actors"
+                                type="info" effect="dark">{{ mog.actor_name}}
+                        </el-tag>&nbsp;
                     </span>
-                    
+
                 </el-row>
 
                 <el-row class="detail3">
                     <span class="des-name">
-                        Подробнее:&nbsp;&nbsp;
+                        <el-text tag="b" size="large">Подробнее:</el-text>&nbsp;
                         <p class="des-content" style="font-size:15px" v-if="checkHtml(movie_detail.synopsis)" v-html="movie_detail.synopsis"/>
                         <p class="des-content" style="font-size:15px" v-else>{{ movie_detail.synopsis }}</p>
                     </span>  
                     
+                </el-row>
+
+                <el-row>
+                    <el-table :data="movie_detail.episodes" stripe style="width: 100%">
+                      <el-table-column type="index" width="50" />
+                      <el-table-column prop="name" label="Название" width="180" />
+                      <el-table-column prop="date_release" label="Дата выхода" />
+                    </el-table>
                 </el-row>
 
             </el-col>  
@@ -169,9 +182,17 @@
                 :xs="8" :sm="3"
                 style="margin: 5px 0;"
                 >
-                <el-button 
+                <el-button v-if="v.url !== 'http://127.0.0.1:8000/video_stream/'"
                 class="vod-play-url" 
                 style="float: left;" 
+                @click="videoPlay(v)"
+                :class="[{active: activeName == v}]"
+                :href="v">{{ v.name }}
+                </el-button>
+                <el-button v-else
+                disabled
+                class="vod-play-url"
+                style="float: left;"
                 @click="videoPlay(v)"
                 :class="[{active: activeName == v}]"
                 :href="v">{{ v.name }}
@@ -433,7 +454,7 @@ div.vod-detail .el-row {
 span.des-name {
     line-height: 20px;
     margin: 0;
-    color: #999;
+    color: #000000;
     font-weight: 400;
     display: inline;
     text-align: left;

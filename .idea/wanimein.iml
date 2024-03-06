@@ -16,7 +16,11 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/video/hls" />
+      <excludeFolder url="file://$MODULE_DIR$/templates/node_modules/@element-plus" />
+      <excludeFolder url="file://$MODULE_DIR$/templates/node_modules/@esbuild" />
     </content>
+    <content url="file://$MODULE_DIR$/templates/node_modules/@element-plus" />
+    <content url="file://$MODULE_DIR$/templates/node_modules/@esbuild" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

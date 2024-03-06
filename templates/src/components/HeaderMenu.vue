@@ -10,7 +10,9 @@
     :ellipsis="false"
     @select="handleSelect"
   >
-    <el-menu-item index="/" style="font-size:larger; color:#409EFF; ">Wanimein</el-menu-item>
+    <el-menu-item index="/">
+     <el-image v-if="logo" style="width: 180px; height: 60px" :src="logo.default"></el-image>
+    </el-menu-item>
     <el-menu-item index="/movtype/1">Аниме</el-menu-item>
     <el-menu-item index="/movtype/2">Фильмы</el-menu-item>
     <el-menu-item index="/movtype/3">Сериалы</el-menu-item>
@@ -109,7 +111,8 @@ export default {
 
     data() {
       return {
-        user: {}
+        user: {},
+        logo: null,
       }
     },
 
@@ -160,6 +163,9 @@ export default {
 
 
     mounted() {
+      import('../assets/logo.png').then((image) => {
+        this.logo = image;
+      });
       this.router.isReady().then(
         () => {
           var currentPath = this.$route.fullPath
